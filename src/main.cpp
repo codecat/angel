@@ -40,6 +40,17 @@ static void ScriptMessage(const asSMessageInfo* msg, void* param)
 	printf("| %s | Line %d | %s | %s\n", msg->section, msg->row, type, msg->message);
 }
 
+static std::string ScriptStringReplace(std::string* self, const std::string &search, const std::string &replace)
+{
+	std::string ret = *self;
+	size_t startPos = 0;
+	while ((startPos = ret.find(search, startPos)) != std::string::npos) {
+		ret.replace(startPos, search.length(), replace);
+		startPos += replace.length();
+	}
+	return ret;
+}
+
 DoneAction runangel()
 {
 	DoneAction done = done_Quit;
@@ -54,30 +65,31 @@ DoneAction runangel()
 	RegisterStdString(engine);
 	RegisterStdStringUtils(engine);
 
+	engine->RegisterObjectMethod("string", "string replace(const string &in search, const string &in replace) const", asFUNCTION(ScriptStringReplace), asCALL_CDECL_OBJFIRST);
+
 	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
 
 	RegisterFilesystem(engine, g_argv0);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Scripts");
-	builder.AddSectionFromMemory("Test",
-		"void main() {\n"
-		"  string exePath = filesystem::getExecutablePath();\n"
-		"  filesystem::Info info;\n"
-		"  print(\"File path: \" + exePath);\n"
-		"  if (filesystem::getInfo(exePath, info)) {\n"
-		"    print(\"File size: \" + info.size + \" bytes\");\n"
-		"  }\n"
-		"}\n"
-	);
+	builder.AddSectionFromFile("scripts/boot.as");
 	r = builder.BuildModule();
 	if (r != asSUCCESS) {
 		printf("Building scripts failed!\n");
 		return done;
 	}
 
+	printf("%d modules:\n", love::Module::M_MAX_ENUM);
+	for (int i = 0; i < love::Module::M_MAX_ENUM; i++) {
+		auto mod = love::Module::getInstance<love::Module>((love::Module::ModuleType)i);
+		if (mod != nullptr) {
+			printf("  %s\n", mod->getName());
+		}
+	}
+
 	asIScriptModule* mod = builder.GetModule();
-	asIScriptFunction* func = mod->GetFunctionByDecl("void main()");
+	asIScriptFunction* func = mod->GetFunctionByDecl("void boot()");
 
 	asIScriptContext* ctx = engine->CreateContext();
 	ctx->Prepare(func);
@@ -87,16 +99,6 @@ DoneAction runangel()
 		return done;
 	}
 	ctx->Unprepare();
-
-	printf("%d modules:\n", love::Module::M_MAX_ENUM);
-	for (int i = 0; i < love::Module::M_MAX_ENUM; i++) {
-		auto mod = love::Module::getInstance<love::Module>((love::Module::ModuleType)i);
-		if (mod == nullptr) {
-			printf("  ...\n");
-		} else {
-			printf("  %s\n", mod->getName());
-		}
-	}
 
 	return done;
 }
