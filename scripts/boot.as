@@ -93,7 +93,13 @@ void angel_boot()
 
 void angel_init()
 {
-	//TODO: Make window etc.
+	angel::window::WindowSettings settings;
+	if (!angel::window::setMode(800, 600, settings)) {
+		print("Could not set window mode");
+		return;
+	}
+
+	angel::timer::step();
 }
 
 void angel_run()
