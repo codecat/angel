@@ -3,7 +3,26 @@
 #include <modules/event/Event.h>
 #include <modules/event/sdl/Event.h>
 
+#include <scriptarray/scriptarray.h>
+
 #define instance() (love::Module::getInstance<love::event::Event>(love::Module::M_EVENT))
+
+static std::string message_getName(love::event::Message* self)
+{
+	return self->name;
+}
+
+static CScriptArray* message_getArgs(love::event::Message* self)
+{
+	asIScriptEngine* engine = asGetActiveContext()->GetEngine();
+	asITypeInfo* arrayType = engine->GetTypeInfoByDecl("array<angel::Variant>");
+
+	CScriptArray* ret = CScriptArray::Create(arrayType, self->args.size());
+	for (size_t i = 0; i < self->args.size(); i++) {
+		*(love::Variant*)ret->At(i) = self->args[i];
+	}
+	return ret;
+}
 
 static void module_pump() { instance()->pump(); }
 static love::event::Message* module_poll()
@@ -32,12 +51,17 @@ void RegisterEvent(asIScriptEngine* engine)
 		love::Module::registerInstance(pEvent);
 	}
 
-	engine->SetDefaultNamespace("love::event");
+	engine->SetDefaultNamespace("angel::event");
 
+	// Message
 	engine->RegisterObjectType("Message", 0, asOBJ_REF);
 	engine->RegisterObjectBehaviour("Message", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
 	engine->RegisterObjectBehaviour("Message", asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
 
+	engine->RegisterObjectMethod("Message", "string getName()", asFUNCTION(message_getName), asCALL_CDECL_OBJFIRST);
+	engine->RegisterObjectMethod("Message", "array<Variant>@ getArgs()", asFUNCTION(message_getArgs), asCALL_CDECL_OBJFIRST);
+
+	// Module
 	engine->RegisterGlobalFunction("void pump()", asFUNCTION(module_pump), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Message@ poll()", asFUNCTION(module_poll), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Message@ wait()", asFUNCTION(module_wait), asCALL_CDECL);

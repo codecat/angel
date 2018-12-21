@@ -35,7 +35,7 @@ namespace path
 			return normalslashes(p);
 		}
 
-		string cwd = love::filesystem::getWorkingDirectory();
+		string cwd = angel::filesystem::getWorkingDirectory();
 		cwd = normalslashes(cwd);
 		cwd = endslash(cwd);
 
@@ -69,24 +69,55 @@ namespace path
 
 void angel_boot()
 {
-	string exepath = love::filesystem::getExecutablePath();
+	string exepath = angel::filesystem::getExecutablePath();
 
-	bool canHasGame = love::filesystem::setSource(exepath);
-	love::filesystem::setFused(canHasGame);
+	bool canHasGame = angel::filesystem::setSource(exepath);
+	angel::filesystem::setFused(canHasGame);
 
 	string identity = "";
 
 	if (!canHasGame) {
 		string fullSource = path::getFull("game/");
-		canHasGame = love::filesystem::setSource(fullSource);
+		canHasGame = angel::filesystem::setSource(fullSource);
 		identity = path::leaf(fullSource);
 	} else {
 		identity = path::leaf(exepath);
 	}
 
-	love::filesystem::setIdentity(identity);
+	angel::filesystem::setIdentity(identity);
 
 	if (!canHasGame) {
 		print("No game found");
+	}
+}
+
+void angel_init()
+{
+	//TODO: Make window etc.
+}
+
+void angel_run()
+{
+	angel_init();
+
+	angel::game_load();
+
+	while (true) {
+		angel::event::pump();
+
+		angel::event::Message@ msg = angel::event::poll();
+		while (msg !is null) {
+			if (msg.getName() == "quit") {
+				return;
+			}
+
+			@msg = angel::event::poll();
+		}
+
+		double dt = angel::timer::step();
+		angel::game_update(dt);
+
+		//TODO: graphics stuff
+		angel::game_draw();
 	}
 }

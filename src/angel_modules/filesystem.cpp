@@ -80,7 +80,7 @@ void RegisterFilesystem(asIScriptEngine* engine, const char* argv0)
 
 	pFilesystem->init(argv0);
 
-	engine->SetDefaultNamespace("love::filesystem");
+	engine->SetDefaultNamespace("angel::filesystem");
 
 	// FileType
 	engine->RegisterEnum("FileType");

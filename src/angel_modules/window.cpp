@@ -61,7 +61,7 @@ void RegisterWindow(asIScriptEngine* engine)
 		love::Module::registerInstance(pWindow);
 	}
 
-	engine->SetDefaultNamespace("love::window");
+	engine->SetDefaultNamespace("angel::window");
 
 	// DisplayOrientation
 	engine->RegisterEnum("DisplayOrientation");
@@ -113,7 +113,7 @@ void RegisterWindow(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void getMode(int &out width, int &out height, WindowSettings &out settings)", asFUNCTION(module_getMode), asCALL_CDECL);
 	engine->RegisterGlobalFunction("DisplayOrientation getDisplayOrientation(int displayindex)", asFUNCTION(module_getDisplayOrientation), asCALL_CDECL);
 	//engine->RegisterGlobalFunction("void getFullscreenModes()", asFUNCTION(module_getFullscreenModes), asCALL_CDECL);
-	engine->RegisterGlobalFunction("bool setFullscreen(bool fullscreen, FullscreenType = love::window::FullscreenType::Desktop)", asFUNCTION(module_setFullscreen), asCALL_CDECL);
+	engine->RegisterGlobalFunction("bool setFullscreen(bool fullscreen, FullscreenType = angel::window::FullscreenType::Desktop)", asFUNCTION(module_setFullscreen), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool getFullscreen()", asFUNCTION(module_getFullscreen), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool isOpen()", asFUNCTION(module_isOpen), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void close()", asFUNCTION(module_close), asCALL_CDECL);
@@ -141,7 +141,7 @@ void RegisterWindow(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void restore()", asFUNCTION(module_restore), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool isMaximized()", asFUNCTION(module_isMaximized), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool isMinimized()", asFUNCTION(module_isMinimized), asCALL_CDECL);
-	engine->RegisterGlobalFunction("bool showMessageBox(const string &in title, const string &in message, MessageBoxType type = love::window::MessageBoxType::Info, bool attachtowindow = true)", asFUNCTION(module_showMessageBox), asCALL_CDECL);
+	engine->RegisterGlobalFunction("bool showMessageBox(const string &in title, const string &in message, MessageBoxType type = angel::window::MessageBoxType::Info, bool attachtowindow = true)", asFUNCTION(module_showMessageBox), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void requestAttention(bool continuous)", asFUNCTION(module_requestAttention), asCALL_CDECL);
 
 	engine->SetDefaultNamespace("");

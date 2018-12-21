@@ -11,6 +11,8 @@
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptarray/scriptarray.h>
 
+#include <angel_common/variant.h>
+
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
 #include <angel_modules/timer.h>
@@ -29,6 +31,54 @@ enum DoneAction
 {
 	done_Restart,
 	done_Quit,
+};
+
+class CScriptCall
+{
+public:
+	asIScriptContext* m_ctx;
+	asIScriptFunction* m_func;
+
+public:
+	CScriptCall(asIScriptContext* ctx, asIScriptFunction* func)
+	{
+		m_ctx = ctx;
+		m_func = func;
+
+		if (m_func != nullptr) {
+			if (m_ctx->GetState() == asEXECUTION_ACTIVE) {
+				m_ctx->PushState();
+			}
+			m_ctx->Prepare(m_func);
+		}
+	}
+
+	void SetArg(int index, int num) { if (m_func == nullptr) { return; } m_ctx->SetArgDWord(index, num); }
+	void SetArg(int index, double num) { if (m_func == nullptr) { return; } m_ctx->SetArgDouble(index, num); }
+	void SetArg(int index, void* obj) { if (m_func == nullptr) { return; } m_ctx->SetArgObject(index, obj); }
+
+	bool Execute()
+	{
+		if (m_func == nullptr) {
+			return false;
+		}
+
+		m_ctx->Execute();
+		if (m_ctx->GetState() == asEXECUTION_EXCEPTION) {
+			printf("| Script exception: %s\n", m_ctx->GetExceptionString());
+			for (asUINT i = 0; i < m_ctx->GetCallstackSize(); i++) {
+				asIScriptFunction* frameFunc = m_ctx->GetFunction(i);
+				int frameLine = m_ctx->GetLineNumber(i);
+				printf("|   %s (Line %d)\n", frameFunc->GetDeclaration(true, true), frameLine);
+			}
+		}
+		if (m_ctx->IsNested()) {
+			m_ctx->PopState();
+		} else {
+			m_ctx->Unprepare();
+		}
+		return true;
+	}
 };
 
 static void ScriptPrint(const std::string &str)
@@ -81,12 +131,34 @@ static void loadscripts(CScriptBuilder &builder, const std::string &path, love::
 	}
 }
 
+static asIScriptContext* g_ctx = nullptr;
+static asIScriptFunction* g_funcGameLoad = nullptr;
+static asIScriptFunction* g_funcGameUpdate = nullptr;
+static asIScriptFunction* g_funcGameDraw = nullptr;
+
+static void ScriptGameLoad()
+{
+	CScriptCall(g_ctx, g_funcGameLoad).Execute();
+}
+
+static void ScriptGameUpdate(double dt)
+{
+	CScriptCall call(g_ctx, g_funcGameUpdate);
+	call.SetArg(0, dt);
+	call.Execute();
+}
+
+static void ScriptGameDraw()
+{
+	CScriptCall(g_ctx, g_funcGameDraw).Execute();
+}
+
 static DoneAction runangel()
 {
 	DoneAction done = done_Quit;
 
 	asIScriptEngine* engine = asCreateScriptEngine();
-	asIScriptContext* ctx = engine->CreateContext();
+	g_ctx = engine->CreateContext();
 
 	int r = 0;
 
@@ -101,6 +173,13 @@ static DoneAction runangel()
 
 	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
 
+	engine->SetDefaultNamespace("angel");
+	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
+	engine->SetDefaultNamespace("");
+
+	RegisterVariant(engine);
 	RegisterFilesystem(engine, g_argv0);
 	RegisterEvent(engine);
 	RegisterTimer(engine);
@@ -116,7 +195,7 @@ static DoneAction runangel()
 	}
 	asIScriptModule* modBoot = builder.GetModule();
 
-	printf("%d modules:\n", love::Module::M_MAX_ENUM);
+	printf("Modules:\n");
 	for (int i = 0; i < love::Module::M_MAX_ENUM; i++) {
 		auto mod = love::Module::getInstance<love::Module>((love::Module::ModuleType)i);
 		if (mod != nullptr) {
@@ -129,16 +208,9 @@ static DoneAction runangel()
 	auto pTimer = love::Module::getInstance<love::timer::Timer>(love::Module::M_TIMER);
 
 	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void angel_boot()");
-	ctx->Prepare(funcBoot);
-	ctx->Execute();
-	if (ctx->GetState() == asEXECUTION_EXCEPTION) {
-		printf("Script exception caught!\n");
-		return done;
-	}
-	ctx->Unprepare();
+	CScriptCall(g_ctx, funcBoot).Execute();
 
 	builder.StartNewModule(engine, "Game");
-	builder.AddSectionFromFile("scripts/boot.as");
 	loadscripts(builder, "/", pFilesystem);
 	r = builder.BuildModule();
 	if (r != asSUCCESS) {
@@ -147,30 +219,33 @@ static DoneAction runangel()
 	}
 	asIScriptModule* modGame = builder.GetModule();
 
-	asIScriptFunction* funcGameInit = modGame->GetFunctionByDecl("void angel_init()");
-	asIScriptFunction* funcGameLoad = modGame->GetFunctionByDecl("void angel_load()");
-	asIScriptFunction* funcGameUpdate = modGame->GetFunctionByDecl("void angel_update(double dt)");
-	asIScriptFunction* funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
+	g_funcGameLoad = modGame->GetFunctionByDecl("void angel_load()");
+	g_funcGameUpdate = modGame->GetFunctionByDecl("void angel_update(double dt)");
+	g_funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
+
+	asIScriptFunction* funcRun = modBoot->GetFunctionByDecl("void angel_run()");
+	CScriptCall(g_ctx, funcRun).Execute();
 
 	//TODO: Move all logic below to boot.as instead (function angel_run) while keeping the game functions optional
+	/*
 	if (funcGameInit != nullptr) {
-		ctx->Prepare(funcGameInit);
-		ctx->Execute();
-		if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+		g_ctx->Prepare(funcGameInit);
+		g_ctx->Execute();
+		if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
 			printf("Script exception caught!\n");
 			return done;
 		}
-		ctx->Unprepare();
+		g_ctx->Unprepare();
 	}
 
 	if (funcGameLoad != nullptr) {
-		ctx->Prepare(funcGameLoad);
-		ctx->Execute();
-		if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+		g_ctx->Prepare(funcGameLoad);
+		g_ctx->Execute();
+		if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
 			printf("Script exception caught!\n");
 			return done;
 		}
-		ctx->Unprepare();
+		g_ctx->Unprepare();
 	}
 
 	while (true) {
@@ -191,30 +266,31 @@ static DoneAction runangel()
 		double dt = pTimer->step();
 
 		if (funcGameUpdate != nullptr) {
-			ctx->Prepare(funcGameUpdate);
-			ctx->SetArgDouble(0, dt);
-			ctx->Execute();
-			if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+			g_ctx->Prepare(funcGameUpdate);
+			g_ctx->SetArgDouble(0, dt);
+			g_ctx->Execute();
+			if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
 				printf("Script exception caught!\n");
 				return done;
 			}
-			ctx->Unprepare();
+			g_ctx->Unprepare();
 		}
 
 		//TODO: origin() and clear() graphics here
 
 		if (funcGameDraw != nullptr) {
-			ctx->Prepare(funcGameDraw);
-			ctx->Execute();
-			if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+			g_ctx->Prepare(funcGameDraw);
+			g_ctx->Execute();
+			if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
 				printf("Script exception caught!\n");
 				return done;
 			}
-			ctx->Unprepare();
+			g_ctx->Unprepare();
 		}
 
 		//TODO: present() graphics here
 	}
+	*/
 
 	return done;
 }

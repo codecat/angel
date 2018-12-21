@@ -19,7 +19,7 @@ void RegisterTimer(asIScriptEngine* engine)
 		love::Module::registerInstance(pTimer);
 	}
 
-	engine->SetDefaultNamespace("love::timer");
+	engine->SetDefaultNamespace("angel::timer");
 
 	engine->RegisterGlobalFunction("double step()", asFUNCTION(module_step), asCALL_CDECL);
 	engine->RegisterGlobalFunction("double getDelta()", asFUNCTION(module_getDelta), asCALL_CDECL);
