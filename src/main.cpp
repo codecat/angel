@@ -14,6 +14,7 @@
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
 #include <angel_modules/timer.h>
+#include <angel_modules/window.h>
 
 #include <modules/filesystem/Filesystem.h>
 #include <modules/event/Event.h>
@@ -103,6 +104,7 @@ static DoneAction runangel()
 	RegisterFilesystem(engine, g_argv0);
 	RegisterEvent(engine);
 	RegisterTimer(engine);
+	RegisterWindow(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");

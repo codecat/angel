@@ -32,7 +32,7 @@ void RegisterEvent(asIScriptEngine* engine)
 		love::Module::registerInstance(pEvent);
 	}
 
-	engine->SetDefaultNamespace("event");
+	engine->SetDefaultNamespace("love::event");
 
 	engine->RegisterObjectType("Message", 0, asOBJ_REF);
 	engine->RegisterObjectBehaviour("Message", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);

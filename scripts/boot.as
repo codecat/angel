@@ -35,7 +35,7 @@ namespace path
 			return normalslashes(p);
 		}
 
-		string cwd = filesystem::getWorkingDirectory();
+		string cwd = love::filesystem::getWorkingDirectory();
 		cwd = normalslashes(cwd);
 		cwd = endslash(cwd);
 
@@ -69,22 +69,22 @@ namespace path
 
 void angel_boot()
 {
-	string exepath = filesystem::getExecutablePath();
+	string exepath = love::filesystem::getExecutablePath();
 
-	bool canHasGame = filesystem::setSource(exepath);
-	filesystem::setFused(canHasGame);
+	bool canHasGame = love::filesystem::setSource(exepath);
+	love::filesystem::setFused(canHasGame);
 
 	string identity = "";
 
 	if (!canHasGame) {
 		string fullSource = path::getFull("game/");
-		canHasGame = filesystem::setSource(fullSource);
+		canHasGame = love::filesystem::setSource(fullSource);
 		identity = path::leaf(fullSource);
 	} else {
 		identity = path::leaf(exepath);
 	}
 
-	filesystem::setIdentity(identity);
+	love::filesystem::setIdentity(identity);
 
 	if (!canHasGame) {
 		print("No game found");
