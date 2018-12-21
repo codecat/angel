@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include <string>
+#include <vector>
 
 #include <common/version.h>
 #include <common/Module.h>
@@ -14,6 +15,8 @@
 #include <scriptarray/scriptarray.h>
 
 #include <angel_modules/filesystem.h>
+
+#include <modules/filesystem/Filesystem.h>
 
 static int g_argc;
 static char* g_argv0;
@@ -51,11 +54,36 @@ static std::string ScriptStringReplace(std::string* self, const std::string &sea
 	return ret;
 }
 
-DoneAction runangel()
+static void loadscripts(CScriptBuilder &builder, const std::string &path, love::filesystem::Filesystem* pfs)
+{
+	std::vector<std::string> files;
+	pfs->getDirectoryItems(path.c_str(), files);
+
+	for (auto &file : files) {
+		std::string relPath = file;
+		if (path != "/") {
+			relPath = path + "/" + file;
+		}
+
+		love::filesystem::Filesystem::Info info;
+		pfs->getInfo(relPath.c_str(), info);
+		if (info.type == love::filesystem::Filesystem::FILETYPE_DIRECTORY) {
+			loadscripts(builder, relPath, pfs);
+		} else {
+			auto fileData = pfs->read(relPath.c_str());
+			builder.AddSectionFromMemory(relPath.c_str(), (const char*)fileData->getData(), fileData->getSize());
+			fileData->release();
+		}
+	}
+}
+
+static DoneAction runangel()
 {
 	DoneAction done = done_Quit;
 
 	asIScriptEngine* engine = asCreateScriptEngine();
+	asIScriptContext* ctx = engine->CreateContext();
+
 	int r = 0;
 
 	//int SetMessageCallback(const asSFuncPtr &callback, void *obj, asDWORD callConv)
@@ -72,13 +100,14 @@ DoneAction runangel()
 	RegisterFilesystem(engine, g_argv0);
 
 	CScriptBuilder builder;
-	builder.StartNewModule(engine, "Scripts");
+	builder.StartNewModule(engine, "Boot");
 	builder.AddSectionFromFile("scripts/boot.as");
 	r = builder.BuildModule();
 	if (r != asSUCCESS) {
-		printf("Building scripts failed!\n");
+		printf("Building boot scripts failed!\n");
 		return done;
 	}
+	asIScriptModule* modBoot = builder.GetModule();
 
 	printf("%d modules:\n", love::Module::M_MAX_ENUM);
 	for (int i = 0; i < love::Module::M_MAX_ENUM; i++) {
@@ -88,17 +117,72 @@ DoneAction runangel()
 		}
 	}
 
-	asIScriptModule* mod = builder.GetModule();
-	asIScriptFunction* func = mod->GetFunctionByDecl("void boot()");
-
-	asIScriptContext* ctx = engine->CreateContext();
-	ctx->Prepare(func);
+	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void boot()");
+	ctx->Prepare(funcBoot);
 	ctx->Execute();
 	if (ctx->GetState() == asEXECUTION_EXCEPTION) {
 		printf("Script exception caught!\n");
 		return done;
 	}
 	ctx->Unprepare();
+
+	auto pfs = love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM);
+
+	builder.StartNewModule(engine, "Game");
+	loadscripts(builder, "/", pfs);
+	r = builder.BuildModule();
+	if (r != asSUCCESS) {
+		printf("Building game scripts failed!\n");
+		return done;
+	}
+	asIScriptModule* modGame = builder.GetModule();
+
+	asIScriptFunction* funcGameInit = modGame->GetFunctionByDecl("void angel_init()");
+	asIScriptFunction* funcGameLoad = modGame->GetFunctionByDecl("void angel_load()");
+	asIScriptFunction* funcGameUpdate = modGame->GetFunctionByDecl("void angel_update()");
+	asIScriptFunction* funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
+
+	if (funcGameInit != nullptr) {
+		ctx->Prepare(funcGameInit);
+		ctx->Execute();
+		if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+			printf("Script exception caught!\n");
+			return done;
+		}
+		ctx->Unprepare();
+	}
+
+	if (funcGameLoad != nullptr) {
+		ctx->Prepare(funcGameLoad);
+		ctx->Execute();
+		if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+			printf("Script exception caught!\n");
+			return done;
+		}
+		ctx->Unprepare();
+	}
+
+	while (true) {
+		if (funcGameUpdate != nullptr) {
+			ctx->Prepare(funcGameUpdate);
+			ctx->Execute();
+			if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+				printf("Script exception caught!\n");
+				return done;
+			}
+			ctx->Unprepare();
+		}
+
+		if (funcGameDraw != nullptr) {
+			ctx->Prepare(funcGameDraw);
+			ctx->Execute();
+			if (ctx->GetState() == asEXECUTION_EXCEPTION) {
+				printf("Script exception caught!\n");
+				return done;
+			}
+			ctx->Unprepare();
+		}
+	}
 
 	return done;
 }

@@ -1,0 +1,3 @@
+void angel_draw()
+{
+}
