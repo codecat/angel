@@ -13,9 +13,11 @@
 
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
+#include <angel_modules/timer.h>
 
 #include <modules/filesystem/Filesystem.h>
 #include <modules/event/Event.h>
+#include <modules/timer/Timer.h>
 
 static int g_argc;
 static char* g_argv0;
@@ -100,6 +102,7 @@ static DoneAction runangel()
 
 	RegisterFilesystem(engine, g_argv0);
 	RegisterEvent(engine);
+	RegisterTimer(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");
@@ -121,6 +124,7 @@ static DoneAction runangel()
 
 	auto pFilesystem = love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM);
 	auto pEvent = love::Module::getInstance<love::event::Event>(love::Module::M_EVENT);
+	auto pTimer = love::Module::getInstance<love::timer::Timer>(love::Module::M_TIMER);
 
 	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void angel_boot()");
 	ctx->Prepare(funcBoot);
@@ -143,7 +147,7 @@ static DoneAction runangel()
 
 	asIScriptFunction* funcGameInit = modGame->GetFunctionByDecl("void angel_init()");
 	asIScriptFunction* funcGameLoad = modGame->GetFunctionByDecl("void angel_load()");
-	asIScriptFunction* funcGameUpdate = modGame->GetFunctionByDecl("void angel_update()");
+	asIScriptFunction* funcGameUpdate = modGame->GetFunctionByDecl("void angel_update(double dt)");
 	asIScriptFunction* funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
 
 	//TODO: Move all logic below to boot.as instead (function angel_run) while keeping the game functions optional
@@ -174,17 +178,19 @@ static DoneAction runangel()
 		while (pEvent->poll(msg)) {
 			printf("  Event: \"%s\" (%d args)\n", msg->name.c_str(), (int)msg->args.size());
 			if (msg->name == "quit") {
+				//TODO: Allow canceling using angel_quit() function
 				if (msg->args.size() > 0 && msg->args[0].getType() == love::Variant::NUMBER) {
-					g_retval = (int)msg->args[0].data.number;
+					g_retval = (int)msg->args[0].getData().number;
 				}
 				return done;
 			}
 		}
 
-		//TODO: Update dt here and pass to update function
+		double dt = pTimer->step();
 
 		if (funcGameUpdate != nullptr) {
 			ctx->Prepare(funcGameUpdate);
+			ctx->SetArgDouble(0, dt);
 			ctx->Execute();
 			if (ctx->GetState() == asEXECUTION_EXCEPTION) {
 				printf("Script exception caught!\n");

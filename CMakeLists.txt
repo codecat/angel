@@ -14,6 +14,9 @@ add_executable(angel
 	src/angel_modules/event.cpp
 	src/angel_modules/event.h
 
+	src/angel_modules/timer.cpp
+	src/angel_modules/timer.h
+
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
 	angelscript/sdk/add_on/scriptarray/scriptarray.h
 

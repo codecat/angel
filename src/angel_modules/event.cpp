@@ -26,10 +26,10 @@ static void module_quit(int exitstatus)
 
 void RegisterEvent(asIScriptEngine* engine)
 {
-	auto pe = instance();
-	if (pe == nullptr) {
-		pe = new love::event::sdl::Event();
-		love::Module::registerInstance(pe);
+	auto pEvent = instance();
+	if (pEvent == nullptr) {
+		pEvent = new love::event::sdl::Event();
+		love::Module::registerInstance(pEvent);
 	}
 
 	engine->SetDefaultNamespace("event");

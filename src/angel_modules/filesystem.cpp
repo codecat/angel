@@ -72,13 +72,13 @@ static bool module_areSymlinksEnabled() { return instance()->areSymlinksEnabled(
 
 void RegisterFilesystem(asIScriptEngine* engine, const char* argv0)
 {
-	auto pfs = instance();
-	if (pfs == nullptr) {
-		pfs = new love::filesystem::physfs::Filesystem();
-		love::Module::registerInstance(pfs);
+	auto pFilesystem = instance();
+	if (pFilesystem == nullptr) {
+		pFilesystem = new love::filesystem::physfs::Filesystem();
+		love::Module::registerInstance(pFilesystem);
 	}
 
-	pfs->init(argv0);
+	pFilesystem->init(argv0);
 
 	engine->SetDefaultNamespace("filesystem");
 
