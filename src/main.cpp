@@ -163,6 +163,10 @@ static DoneAction runangel()
 	}
 
 	while (true) {
+		//TODO: Process events here
+
+		//TODO: Update dt here and pass to update function
+
 		if (funcGameUpdate != nullptr) {
 			ctx->Prepare(funcGameUpdate);
 			ctx->Execute();
@@ -173,6 +177,8 @@ static DoneAction runangel()
 			ctx->Unprepare();
 		}
 
+		//TODO: origin() and clear() graphics here
+
 		if (funcGameDraw != nullptr) {
 			ctx->Prepare(funcGameDraw);
 			ctx->Execute();
@@ -182,6 +188,8 @@ static DoneAction runangel()
 			}
 			ctx->Unprepare();
 		}
+
+		//TODO: present() graphics here
 	}
 
 	return done;
