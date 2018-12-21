@@ -11,6 +11,9 @@ add_executable(angel
 	src/angel_modules/filesystem.cpp
 	src/angel_modules/filesystem.h
 
+	src/angel_modules/event.cpp
+	src/angel_modules/event.h
+
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
 	angelscript/sdk/add_on/scriptarray/scriptarray.h
 

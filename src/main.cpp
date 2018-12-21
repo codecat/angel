@@ -1,7 +1,4 @@
-#include <cstdio>
-
-#include <string>
-#include <vector>
+#include <common.h>
 
 #include <common/version.h>
 #include <common/Module.h>
@@ -15,11 +12,15 @@
 #include <scriptarray/scriptarray.h>
 
 #include <angel_modules/filesystem.h>
+#include <angel_modules/event.h>
 
 #include <modules/filesystem/Filesystem.h>
+#include <modules/event/Event.h>
 
 static int g_argc;
 static char* g_argv0;
+
+static int g_retval = 0;
 
 enum DoneAction
 {
@@ -98,6 +99,7 @@ static DoneAction runangel()
 	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
 
 	RegisterFilesystem(engine, g_argv0);
+	RegisterEvent(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");
@@ -117,7 +119,10 @@ static DoneAction runangel()
 		}
 	}
 
-	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void boot()");
+	auto pFilesystem = love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM);
+	auto pEvent = love::Module::getInstance<love::event::Event>(love::Module::M_EVENT);
+
+	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void angel_boot()");
 	ctx->Prepare(funcBoot);
 	ctx->Execute();
 	if (ctx->GetState() == asEXECUTION_EXCEPTION) {
@@ -126,10 +131,9 @@ static DoneAction runangel()
 	}
 	ctx->Unprepare();
 
-	auto pfs = love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM);
-
 	builder.StartNewModule(engine, "Game");
-	loadscripts(builder, "/", pfs);
+	builder.AddSectionFromFile("scripts/boot.as");
+	loadscripts(builder, "/", pFilesystem);
 	r = builder.BuildModule();
 	if (r != asSUCCESS) {
 		printf("Building game scripts failed!\n");
@@ -142,6 +146,7 @@ static DoneAction runangel()
 	asIScriptFunction* funcGameUpdate = modGame->GetFunctionByDecl("void angel_update()");
 	asIScriptFunction* funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
 
+	//TODO: Move all logic below to boot.as instead (function angel_run) while keeping the game functions optional
 	if (funcGameInit != nullptr) {
 		ctx->Prepare(funcGameInit);
 		ctx->Execute();
@@ -163,7 +168,18 @@ static DoneAction runangel()
 	}
 
 	while (true) {
-		//TODO: Process events here
+		pEvent->pump();
+
+		love::event::Message* msg;
+		while (pEvent->poll(msg)) {
+			printf("  Event: \"%s\" (%d args)\n", msg->name.c_str(), (int)msg->args.size());
+			if (msg->name == "quit") {
+				if (msg->args.size() > 0 && msg->args[0].getType() == love::Variant::NUMBER) {
+					g_retval = (int)msg->args[0].data.number;
+				}
+				return done;
+			}
+		}
 
 		//TODO: Update dt here and pass to update function
 
@@ -207,5 +223,5 @@ int main(int argc, char* argv[])
 		done = runangel();
 	} while (done != done_Quit);
 
-	return 0;
+	return g_retval;
 }

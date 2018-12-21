@@ -67,7 +67,7 @@ namespace path
 	}
 }
 
-void boot()
+void angel_boot()
 {
 	string exepath = filesystem::getExecutablePath();
 
