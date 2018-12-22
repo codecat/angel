@@ -93,11 +93,15 @@ void angel_boot()
 
 void angel_init()
 {
+	angel_graphics_init();
+
 	angel::window::WindowSettings settings;
 	if (!angel::window::setMode(800, 600, settings)) {
 		print("Could not set window mode");
 		return;
 	}
+
+	angel::window::setTitle(angel::filesystem::getIdentity());
 
 	angel::timer::step();
 }

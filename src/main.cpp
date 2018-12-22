@@ -10,6 +10,7 @@
 #include <scriptbuilder/scriptbuilder.h>
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptarray/scriptarray.h>
+#include <scriptdictionary/scriptdictionary.h>
 
 #include <angel_common/variant.h>
 
@@ -17,10 +18,9 @@
 #include <angel_modules/event.h>
 #include <angel_modules/timer.h>
 #include <angel_modules/window.h>
+#include <angel_modules/graphics.h>
 
 #include <modules/filesystem/Filesystem.h>
-#include <modules/event/Event.h>
-#include <modules/timer/Timer.h>
 
 static int g_argc;
 static char* g_argv0;
@@ -158,16 +158,16 @@ static DoneAction runangel()
 	DoneAction done = done_Quit;
 
 	asIScriptEngine* engine = asCreateScriptEngine();
+	engine->SetMessageCallback(asFUNCTION(ScriptMessage), nullptr, asCALL_CDECL);
+
 	g_ctx = engine->CreateContext();
 
 	int r = 0;
 
-	//int SetMessageCallback(const asSFuncPtr &callback, void *obj, asDWORD callConv)
-	engine->SetMessageCallback(asFUNCTION(ScriptMessage), nullptr, asCALL_CDECL);
-
 	RegisterScriptArray(engine, true);
 	RegisterStdString(engine);
 	RegisterStdStringUtils(engine);
+	RegisterScriptDictionary(engine);
 
 	engine->RegisterObjectMethod("string", "string replace(const string &in search, const string &in replace) const", asFUNCTION(ScriptStringReplace), asCALL_CDECL_OBJFIRST);
 
@@ -184,10 +184,12 @@ static DoneAction runangel()
 	RegisterEvent(engine);
 	RegisterTimer(engine);
 	RegisterWindow(engine);
+	RegisterGraphics(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");
 	builder.AddSectionFromFile("scripts/boot.as");
+	builder.AddSectionFromFile("scripts/graphics.as");
 	r = builder.BuildModule();
 	if (r != asSUCCESS) {
 		printf("Building boot scripts failed!\n");
@@ -204,8 +206,6 @@ static DoneAction runangel()
 	}
 
 	auto pFilesystem = love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM);
-	auto pEvent = love::Module::getInstance<love::event::Event>(love::Module::M_EVENT);
-	auto pTimer = love::Module::getInstance<love::timer::Timer>(love::Module::M_TIMER);
 
 	asIScriptFunction* funcBoot = modBoot->GetFunctionByDecl("void angel_boot()");
 	CScriptCall(g_ctx, funcBoot).Execute();
@@ -225,72 +225,6 @@ static DoneAction runangel()
 
 	asIScriptFunction* funcRun = modBoot->GetFunctionByDecl("void angel_run()");
 	CScriptCall(g_ctx, funcRun).Execute();
-
-	//TODO: Move all logic below to boot.as instead (function angel_run) while keeping the game functions optional
-	/*
-	if (funcGameInit != nullptr) {
-		g_ctx->Prepare(funcGameInit);
-		g_ctx->Execute();
-		if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
-			printf("Script exception caught!\n");
-			return done;
-		}
-		g_ctx->Unprepare();
-	}
-
-	if (funcGameLoad != nullptr) {
-		g_ctx->Prepare(funcGameLoad);
-		g_ctx->Execute();
-		if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
-			printf("Script exception caught!\n");
-			return done;
-		}
-		g_ctx->Unprepare();
-	}
-
-	while (true) {
-		pEvent->pump();
-
-		love::event::Message* msg;
-		while (pEvent->poll(msg)) {
-			printf("  Event: \"%s\" (%d args)\n", msg->name.c_str(), (int)msg->args.size());
-			if (msg->name == "quit") {
-				//TODO: Allow canceling using angel_quit() function
-				if (msg->args.size() > 0 && msg->args[0].getType() == love::Variant::NUMBER) {
-					g_retval = (int)msg->args[0].getData().number;
-				}
-				return done;
-			}
-		}
-
-		double dt = pTimer->step();
-
-		if (funcGameUpdate != nullptr) {
-			g_ctx->Prepare(funcGameUpdate);
-			g_ctx->SetArgDouble(0, dt);
-			g_ctx->Execute();
-			if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
-				printf("Script exception caught!\n");
-				return done;
-			}
-			g_ctx->Unprepare();
-		}
-
-		//TODO: origin() and clear() graphics here
-
-		if (funcGameDraw != nullptr) {
-			g_ctx->Prepare(funcGameDraw);
-			g_ctx->Execute();
-			if (g_ctx->GetState() == asEXECUTION_EXCEPTION) {
-				printf("Script exception caught!\n");
-				return done;
-			}
-			g_ctx->Unprepare();
-		}
-
-		//TODO: present() graphics here
-	}
-	*/
 
 	return done;
 }

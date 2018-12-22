@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Angel)
 
+set(AS_NO_EXCEPTIONS ON)
+
 add_subdirectory(../love out)
 add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
 
@@ -26,8 +28,14 @@ add_executable(angel
 	src/angel_modules/window.cpp
 	src/angel_modules/window.h
 
+	src/angel_modules/graphics.cpp
+	src/angel_modules/graphics.h
+
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
 	angelscript/sdk/add_on/scriptarray/scriptarray.h
+
+	angelscript/sdk/add_on/scriptdictionary/scriptdictionary.cpp
+	angelscript/sdk/add_on/scriptdictionary/scriptdictionary.h
 
 	angelscript/sdk/add_on/scriptbuilder/scriptbuilder.cpp
 	angelscript/sdk/add_on/scriptbuilder/scriptbuilder.h
