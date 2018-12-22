@@ -127,7 +127,15 @@ void angel_run()
 		double dt = angel::timer::step();
 		angel::game_update(dt);
 
-		//TODO: graphics stuff
-		angel::game_draw();
+		if (angel::graphics::isActive()) {
+			angel::graphics::origin();
+			//angel::graphics::clear();
+
+			angel::game_draw();
+
+			angel::graphics::present();
+		}
+
+		angel::timer::sleep(0.001);
 	}
 }

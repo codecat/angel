@@ -151,7 +151,9 @@ static void module_print() { instance()->print(); }
 static void module_printf() { instance()->printf(); }
 
 static void module_isCreated() { instance()->isCreated(); }
-static void module_isActive() { instance()->isActive(); }
+*/
+static bool module_isActive() { instance()->isActive(); }
+/*
 static void module_isGammaCorrect() { instance()->isGammaCorrect(); }
 static void module_getWidth() { instance()->getWidth(); }
 static void module_getHeight() { instance()->getHeight(); }
@@ -186,7 +188,9 @@ static void module_rotate() { instance()->rotate(); }
 static void module_scale() { instance()->scale(); }
 static void module_translate() { instance()->translate(); }
 static void module_shear() { instance()->shear(); }
+*/
 static void module_origin() { instance()->origin(); }
+/*
 static void module_applyTransform() { instance()->applyTransform(); }
 static void module_replaceTransform() { instance()->replaceTransform(); }
 static void module_transformPoint() { instance()->transformPoint(); }
@@ -287,7 +291,9 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void printf()", asFUNCTION(module_printf), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("void isCreated()", asFUNCTION(module_isCreated), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("bool isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void isGammaCorrect()", asFUNCTION(module_isGammaCorrect), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getWidth()", asFUNCTION(module_getWidth), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getHeight()", asFUNCTION(module_getHeight), asCALL_CDECL);
@@ -322,7 +328,9 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void scale()", asFUNCTION(module_scale), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void translate()", asFUNCTION(module_translate), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void shear()", asFUNCTION(module_shear), asCALL_CDECL);
+	*/
 	engine->RegisterGlobalFunction("void origin()", asFUNCTION(module_origin), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void applyTransform()", asFUNCTION(module_applyTransform), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void replaceTransform()", asFUNCTION(module_replaceTransform), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void transformPoint()", asFUNCTION(module_transformPoint), asCALL_CDECL);
