@@ -11,7 +11,10 @@
 #define instance() (love::Module::getInstance<love::graphics::Graphics>(love::Module::M_GRAPHICS))
 
 static void module_reset() { instance()->reset(); }
-//static void module_clear() { instance()->clear(); }
+static void module_clear() { instance()->clear(love::graphics::OptionalColorf(), love::OptionalInt(), love::OptionalDouble()); }
+static void module_clear2(const love::Colorf &color) { instance()->clear(color, love::OptionalInt(), love::OptionalDouble()); }
+static void module_clear3(const love::Colorf &color, int stencil) { instance()->clear(color, stencil, love::OptionalDouble()); }
+static void module_clear4(const love::Colorf &color, int stencil, double depth) { instance()->clear(color, stencil, depth); }
 //static void module_discard() { instance()->discard(); }
 static void module_present() { instance()->present(nullptr); }
 
@@ -38,9 +41,11 @@ static void module_getCanvas() { instance()->getCanvas(); }
 
 static void module_setColor() { instance()->setColor(); }
 static void module_getColor() { instance()->getColor(); }
-static void module_setBackgroundColor() { instance()->setBackgroundColor(); }
-static void module_getBackgroundColor() { instance()->getBackgroundColor(); }
+*/
+static void module_setBackgroundColor(const love::Colorf &c) { instance()->setBackgroundColor(c); }
+static love::Colorf module_getBackgroundColor() { return instance()->getBackgroundColor(); }
 
+/*
 static void module_setNewFont() { instance()->setNewFont(); }
 static void module_setFont() { instance()->setFont(); }
 static void module_getFont() { instance()->getFont(); }
@@ -208,7 +213,10 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->SetDefaultNamespace("angel::graphics");
 
 	engine->RegisterGlobalFunction("void reset()", asFUNCTION(module_reset), asCALL_CDECL);
-	//engine->RegisterGlobalFunction("void clear()", asFUNCTION(module_clear), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void clear()", asFUNCTION(module_clear), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void clear(const Colorf &in color)", asFUNCTION(module_clear2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void clear(const Colorf &in color, int stencil)", asFUNCTION(module_clear3), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void clear(const Colorf &in color, int stencil, double depth)", asFUNCTION(module_clear4), asCALL_CDECL);
 	//engine->RegisterGlobalFunction("void discard()", asFUNCTION(module_discard), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void present()", asFUNCTION(module_present), asCALL_CDECL);
 
@@ -235,9 +243,11 @@ void RegisterGraphics(asIScriptEngine* engine)
 
 	engine->RegisterGlobalFunction("void setColor()", asFUNCTION(module_setColor), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getColor()", asFUNCTION(module_getColor), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void setBackgroundColor()", asFUNCTION(module_setBackgroundColor), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getBackgroundColor()", asFUNCTION(module_getBackgroundColor), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("void setBackgroundColor(const Colorf &in c)", asFUNCTION(module_setBackgroundColor), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Colorf getBackgroundColor()", asFUNCTION(module_getBackgroundColor), asCALL_CDECL);
 
+	/*
 	engine->RegisterGlobalFunction("void setNewFont()", asFUNCTION(module_setNewFont), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setFont()", asFUNCTION(module_setFont), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getFont()", asFUNCTION(module_getFont), asCALL_CDECL);

@@ -129,7 +129,7 @@ void angel_run()
 
 		if (angel::graphics::isActive()) {
 			angel::graphics::origin();
-			//angel::graphics::clear();
+			angel::graphics::clear(angel::graphics::getBackgroundColor());
 
 			angel::game_draw();
 

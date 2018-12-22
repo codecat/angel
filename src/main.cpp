@@ -13,6 +13,7 @@
 #include <scriptdictionary/scriptdictionary.h>
 
 #include <angel_common/variant.h>
+#include <angel_common/color.h>
 
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
@@ -179,7 +180,11 @@ static DoneAction runangel()
 	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
 	engine->SetDefaultNamespace("");
 
+	// Common bindings
 	RegisterVariant(engine);
+	RegisterColor(engine);
+
+	// Module bindings
 	RegisterFilesystem(engine, g_argv0);
 	RegisterEvent(engine);
 	RegisterTimer(engine);

@@ -10,12 +10,17 @@ add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
 add_executable(angel
 	src/main.cpp
 
+	# Common
 	src/angel_common/bindings.cpp
 	src/angel_common/bindings.h
 
 	src/angel_common/variant.cpp
 	src/angel_common/variant.h
 
+	src/angel_common/color.cpp
+	src/angel_common/color.h
+
+	# Modules
 	src/angel_modules/filesystem.cpp
 	src/angel_modules/filesystem.h
 
@@ -31,6 +36,7 @@ add_executable(angel
 	src/angel_modules/graphics.cpp
 	src/angel_modules/graphics.h
 
+	# Angelscript add-ons
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
 	angelscript/sdk/add_on/scriptarray/scriptarray.h
 
