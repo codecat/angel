@@ -8,6 +8,8 @@
 
 #include <scriptdictionary/scriptdictionary.h>
 
+#include <glm/vec2.hpp>
+
 #define instance() (love::Module::getInstance<love::graphics::Graphics>(love::Module::M_GRAPHICS))
 
 static void module_reset() { instance()->reset(); }
@@ -160,9 +162,11 @@ static void module_isCreated() { instance()->isCreated(); }
 static bool module_isActive() { instance()->isActive(); }
 /*
 static void module_isGammaCorrect() { instance()->isGammaCorrect(); }
-static void module_getWidth() { instance()->getWidth(); }
-static void module_getHeight() { instance()->getHeight(); }
-static void module_getDimensions() { instance()->getDimensions(); }
+*/
+static int module_getWidth() { instance()->getWidth(); }
+static int module_getHeight() { instance()->getHeight(); }
+static glm::vec2 module_getDimensions() { return glm::vec2(instance()->getWidth(), instance()->getHeight()); }
+/*
 static void module_getPixelWidth() { instance()->getPixelWidth(); }
 static void module_getPixelHeight() { instance()->getPixelHeight(); }
 static void module_getPixelDimensions() { instance()->getPixelDimensions(); }
@@ -305,9 +309,11 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("bool isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
 	/*
 	engine->RegisterGlobalFunction("void isGammaCorrect()", asFUNCTION(module_isGammaCorrect), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getWidth()", asFUNCTION(module_getWidth), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getHeight()", asFUNCTION(module_getHeight), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getDimensions()", asFUNCTION(module_getDimensions), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("int getWidth()", asFUNCTION(module_getWidth), asCALL_CDECL);
+	engine->RegisterGlobalFunction("int getHeight()", asFUNCTION(module_getHeight), asCALL_CDECL);
+	engine->RegisterGlobalFunction("vec2 getDimensions()", asFUNCTION(module_getDimensions), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void getPixelWidth()", asFUNCTION(module_getPixelWidth), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getPixelHeight()", asFUNCTION(module_getPixelHeight), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getPixelDimensions()", asFUNCTION(module_getPixelDimensions), asCALL_CDECL);
