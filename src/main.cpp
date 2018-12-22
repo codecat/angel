@@ -14,12 +14,15 @@
 
 #include <angel_common/variant.h>
 #include <angel_common/color.h>
+#include <angel_common/data/data.h>
+#include <angel_common/math/vec2.h>
 
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
 #include <angel_modules/timer.h>
 #include <angel_modules/window.h>
 #include <angel_modules/graphics.h>
+#include <angel_modules/data.h>
 
 #include <modules/filesystem/Filesystem.h>
 
@@ -183,6 +186,8 @@ static DoneAction runangel()
 	// Common bindings
 	RegisterVariant(engine);
 	RegisterColor(engine);
+	RegisterDataData(engine);
+	RegisterMathVec2(engine);
 
 	// Module bindings
 	RegisterFilesystem(engine, g_argv0);
@@ -190,6 +195,7 @@ static DoneAction runangel()
 	RegisterTimer(engine);
 	RegisterWindow(engine);
 	RegisterGraphics(engine);
+	RegisterData(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");

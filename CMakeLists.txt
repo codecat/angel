@@ -20,6 +20,12 @@ add_executable(angel
 	src/angel_common/color.cpp
 	src/angel_common/color.h
 
+	src/angel_common/data/data.cpp
+	src/angel_common/data/data.h
+
+	src/angel_common/math/vec2.cpp
+	src/angel_common/math/vec2.h
+
 	# Modules
 	src/angel_modules/filesystem.cpp
 	src/angel_modules/filesystem.h
@@ -35,6 +41,9 @@ add_executable(angel
 
 	src/angel_modules/graphics.cpp
 	src/angel_modules/graphics.h
+
+	src/angel_modules/data.cpp
+	src/angel_modules/data.h
 
 	# Angelscript add-ons
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
