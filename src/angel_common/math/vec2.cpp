@@ -16,6 +16,8 @@ void RegisterMathVec2(asIScriptEngine* engine)
 	engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(float x, float y)", asFUNCTION(ScriptVec2Ctor), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("vec2", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ScriptDtor<glm::vec2>), asCALL_CDECL_OBJFIRST);
 
+	engine->RegisterObjectMethod("vec2", "vec2 &opAssign(const vec2 &in)", asMETHODPR(glm::vec2, operator=, (const glm::vec2 &), glm::vec2&), asCALL_THISCALL);
+
 	engine->RegisterObjectMethod("vec2", "vec2 &opAddAssign(const vec2 &in)", asMETHODPR(glm::vec2, operator+=, (const glm::vec2 &), glm::vec2&), asCALL_THISCALL);
 	engine->RegisterObjectMethod("vec2", "vec2 &opSubAssign(const vec2 &in)", asMETHODPR(glm::vec2, operator-=, (const glm::vec2 &), glm::vec2&), asCALL_THISCALL);
 	engine->RegisterObjectMethod("vec2", "vec2 &opMulAssign(const vec2 &in)", asMETHODPR(glm::vec2, operator*=, (const glm::vec2 &), glm::vec2&), asCALL_THISCALL);

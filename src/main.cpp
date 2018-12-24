@@ -13,11 +13,13 @@
 #include <scriptarray/scriptarray.h>
 #include <scriptdictionary/scriptdictionary.h>
 
+#include <angel_common/object.h>
 #include <angel_common/variant.h>
 #include <angel_common/color.h>
 #include <angel_common/pixelformat.h>
 #include <angel_common/data/data.h>
 #include <angel_common/math/vec2.h>
+#include <angel_common/math/math.h>
 #include <angel_common/graphics/drawable.h>
 #include <angel_common/graphics/texture.h>
 #include <angel_common/graphics/image.h>
@@ -141,10 +143,6 @@ static DoneAction runangel()
 
 	engine->SetDefaultNamespace("angel");
 
-	auto regObject = ClassRegister::New(engine, "Object", 0, asOBJ_REF);
-	regObject->Behavior(asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
-	regObject->Behavior(asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
-
 	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
@@ -152,11 +150,13 @@ static DoneAction runangel()
 	engine->SetDefaultNamespace("");
 
 	// Common bindings
+	RegisterObject(engine);
 	RegisterVariant(engine);
 	RegisterColor(engine);
 	RegisterPixelFormat(engine);
 	RegisterDataData(engine);
 	RegisterMathVec2(engine);
+	RegisterMathMath(engine);
 	RegisterGraphicsDrawable(engine);
 	RegisterGraphicsTexture(engine);
 	RegisterGraphicsImage(engine);

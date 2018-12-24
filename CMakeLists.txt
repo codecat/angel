@@ -17,6 +17,9 @@ add_executable(angel
 	src/class_register.h
 
 	# Common
+	src/angel_common/object.cpp
+	src/angel_common/object.h
+
 	src/angel_common/bindings.cpp
 	src/angel_common/bindings.h
 
@@ -34,6 +37,9 @@ add_executable(angel
 
 	src/angel_common/math/vec2.cpp
 	src/angel_common/math/vec2.h
+
+	src/angel_common/math/math.cpp
+	src/angel_common/math/math.h
 
 	src/angel_common/graphics/drawable.cpp
 	src/angel_common/graphics/drawable.h

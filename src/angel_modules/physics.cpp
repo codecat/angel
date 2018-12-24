@@ -14,6 +14,13 @@ static b2Vec2 tobv(const glm::vec2 &v)
 	return b2Vec2(v.x, v.y);
 }
 
+static glm::vec2 Body_getWorldPoint(love::physics::box2d::Body* self, float x, float y)
+{
+	glm::vec2 ret;
+	self->getWorldPoint(x, y, ret.x, ret.y);
+	return ret;
+}
+
 static love::physics::box2d::World* module_newWorld(float gx, float gy, bool sleep) { return instance()->newWorld(gx, gy, sleep); }
 static love::physics::box2d::Body* module_newBody(love::physics::box2d::World* world, float x, float y, love::physics::box2d::Body::Type type)
 {
@@ -200,9 +207,21 @@ void RegisterPhysics(asIScriptEngine* engine)
 
 	// Body (actually inherited from love::physics::Body)
 	auto regBody = ClassRegister::New(engine, "Body", 0, asOBJ_REF, "Object");
+	regBody->Method("float getX()", asMETHOD(love::physics::box2d::Body, getX), asCALL_THISCALL);
+	regBody->Method("float getY()", asMETHOD(love::physics::box2d::Body, getY), asCALL_THISCALL);
+	regBody->Method("float getAngle()", asMETHOD(love::physics::box2d::Body, getAngle), asCALL_THISCALL);
+
+	regBody->Method("void setLinearDamping(float damping)", asMETHOD(love::physics::box2d::Body, setLinearDamping), asCALL_THISCALL);
+	regBody->Method("void setAngularDamping(float damping)", asMETHOD(love::physics::box2d::Body, setAngularDamping), asCALL_THISCALL);
+
+	regBody->Method("void applyForce(float x, float y, bool wake = true)", asMETHODPR(love::physics::box2d::Body, applyForce, (float, float, bool), void), asCALL_THISCALL);
+	regBody->Method("void applyForce(float x, float y, float rx, float ry, bool wake = true)", asMETHODPR(love::physics::box2d::Body, applyForce, (float, float, float, float, bool), void), asCALL_THISCALL);
+
+	regBody->Method("vec2 getWorldPoint(float x, float y)", asFUNCTION(Body_getWorldPoint), asCALL_CDECL_OBJFIRST);
 
 	// Fixture
 	auto regFixture = ClassRegister::New(engine, "Fixture", 0, asOBJ_REF, "Object");
+	regFixture->Method("void setRestitution(float restitution)", asMETHOD(love::physics::box2d::Fixture, setRestitution), asCALL_THISCALL);
 
 	// Shape (actually inherited from love::physics::Shape)
 	auto regShape = ClassRegister::New(engine, "Shape", 0, asOBJ_REF, "Object");
@@ -241,35 +260,35 @@ void RegisterPhysics(asIScriptEngine* engine)
 	auto regMotorJoint = ClassRegister::New(engine, "MotorJoint", 0, asOBJ_REF, "Joint");
 
 	// Module
-	engine->RegisterGlobalFunction("World@ newWorld(float gx, float gy, bool sleep = true)", asFUNCTION(module_newWorld), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Body@ newBody(World@ world, float x, float y, BodyType type)", asFUNCTION(module_newBody), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Body@ newBody(World@ world, BodyType type)", asFUNCTION(module_newBody2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Fixture@ newFixture(Body@ body, Shape@ shape, float density)", asFUNCTION(module_newFixture), asCALL_CDECL);
+	engine->RegisterGlobalFunction("World@+ newWorld(float gx, float gy, bool sleep = true)", asFUNCTION(module_newWorld), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Body@+ newBody(World@+ world, float x, float y, BodyType type)", asFUNCTION(module_newBody), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Body@+ newBody(World@+ world, BodyType type)", asFUNCTION(module_newBody2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Fixture@+ newFixture(Body@+ body, Shape@+ shape, float density)", asFUNCTION(module_newFixture), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("CircleShape@ newCircleShape(float radius)", asFUNCTION(module_newCircleShape), asCALL_CDECL);
-	engine->RegisterGlobalFunction("CircleShape@ newCircleShape(float x, float y, float radius)", asFUNCTION(module_newCircleShape2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PolygonShape@ newRectangleShape(float w, float h)", asFUNCTION(module_newRectangleShape), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PolygonShape@ newRectangleShape(float x, float y, float w, float h)", asFUNCTION(module_newRectangleShape2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PolygonShape@ newRectangleShape(float x, float y, float w, float h, float angle)", asFUNCTION(module_newRectangleShape3), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PolygonShape@ newPolygonShape(const array<vec2>@ vertices)", asFUNCTION(module_newPolygonShape), asCALL_CDECL);
-	engine->RegisterGlobalFunction("EdgeShape@ newEdgeShape(float x1, float y1, float x2, float y2)", asFUNCTION(module_newEdgeShape), asCALL_CDECL);
-	engine->RegisterGlobalFunction("ChainShape@ newChainShape(bool looping, array<vec2>@ vertices)", asFUNCTION(module_newChainShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("CircleShape@+ newCircleShape(float radius)", asFUNCTION(module_newCircleShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("CircleShape@+ newCircleShape(float x, float y, float radius)", asFUNCTION(module_newCircleShape2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float w, float h)", asFUNCTION(module_newRectangleShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float x, float y, float w, float h)", asFUNCTION(module_newRectangleShape2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float x, float y, float w, float h, float angle)", asFUNCTION(module_newRectangleShape3), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PolygonShape@+ newPolygonShape(const array<vec2>@ vertices)", asFUNCTION(module_newPolygonShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("EdgeShape@+ newEdgeShape(float x1, float y1, float x2, float y2)", asFUNCTION(module_newEdgeShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("ChainShape@+ newChainShape(bool looping, array<vec2>@ vertices)", asFUNCTION(module_newChainShape), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("DistanceJoint@ newDistanceJoint(Body@ body1, Body@ body2, float x1, float y1, float x2, float y2, bool collideConnected)", asFUNCTION(module_newDistanceJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("MouseJoint@ newMouseJoint(Body@ body, float x, float y)", asFUNCTION(module_newMouseJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("RevoluteJoint@ newRevoluteJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newRevoluteJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("RevoluteJoint@ newRevoluteJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, bool collideConnected, float referenceAngle)", asFUNCTION(module_newRevoluteJoint2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PrismaticJoint@ newPrismaticJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected)", asFUNCTION(module_newPrismaticJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PrismaticJoint@ newPrismaticJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected, float referenceAngle)", asFUNCTION(module_newPrismaticJoint2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PulleyJoint@ newPulleyJoint(Body@ body1, Body@ body2, vec2 groundAnchor1, vec2 groundAnchor2, vec2 anchor1, vec2 anchor2, float ratio, bool collideConnected)", asFUNCTION(module_newPulleyJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("GearJoint@ newGearJoint(Joint@ joint1, Joint@ joint2, float ratio, bool collideConnected)", asFUNCTION(module_newGearJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("FrictionJoint@ newFrictionJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newFrictionJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("WeldJoint@ newWeldJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newWeldJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("WeldJoint@ newWeldJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, bool collideConnected, float referenceAngle)", asFUNCTION(module_newWeldJoint2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("WheelJoint@ newWheelJoint(Body@ body1, Body@ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected)", asFUNCTION(module_newWheelJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("RopeJoint@ newRopeJoint(Body@ body1, Body@ body2, float x1, float y1, float x2, float y2, float maxLength, bool collideConnected)", asFUNCTION(module_newRopeJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("MotorJoint@ newMotorJoint(Body@ body1, Body@ body2)", asFUNCTION(module_newMotorJoint), asCALL_CDECL);
-	engine->RegisterGlobalFunction("MotorJoint@ newMotorJoint(Body@ body1, Body@ body2, float correctionFactor, bool collideConnected)", asFUNCTION(module_newMotorJoint2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("DistanceJoint@+ newDistanceJoint(Body@+ body1, Body@+ body2, float x1, float y1, float x2, float y2, bool collideConnected)", asFUNCTION(module_newDistanceJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("MouseJoint@+ newMouseJoint(Body@+ body, float x, float y)", asFUNCTION(module_newMouseJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("RevoluteJoint@+ newRevoluteJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newRevoluteJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("RevoluteJoint@+ newRevoluteJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, bool collideConnected, float referenceAngle)", asFUNCTION(module_newRevoluteJoint2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PrismaticJoint@+ newPrismaticJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected)", asFUNCTION(module_newPrismaticJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PrismaticJoint@+ newPrismaticJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected, float referenceAngle)", asFUNCTION(module_newPrismaticJoint2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PulleyJoint@+ newPulleyJoint(Body@+ body1, Body@+ body2, vec2 groundAnchor1, vec2 groundAnchor2, vec2 anchor1, vec2 anchor2, float ratio, bool collideConnected)", asFUNCTION(module_newPulleyJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("GearJoint@+ newGearJoint(Joint@ joint1, Joint@ joint2, float ratio, bool collideConnected)", asFUNCTION(module_newGearJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("FrictionJoint@+ newFrictionJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newFrictionJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("WeldJoint@+ newWeldJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, bool collideConnected)", asFUNCTION(module_newWeldJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("WeldJoint@+ newWeldJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, bool collideConnected, float referenceAngle)", asFUNCTION(module_newWeldJoint2), asCALL_CDECL);
+	engine->RegisterGlobalFunction("WheelJoint@+ newWheelJoint(Body@+ body1, Body@+ body2, float xA, float yA, float xB, float yB, float ax, float ay, bool collideConnected)", asFUNCTION(module_newWheelJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("RopeJoint@+ newRopeJoint(Body@+ body1, Body@+ body2, float x1, float y1, float x2, float y2, float maxLength, bool collideConnected)", asFUNCTION(module_newRopeJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("MotorJoint@+ newMotorJoint(Body@+ body1, Body@+ body2)", asFUNCTION(module_newMotorJoint), asCALL_CDECL);
+	engine->RegisterGlobalFunction("MotorJoint@+ newMotorJoint(Body@+ body1, Body@+ body2, float correctionFactor, bool collideConnected)", asFUNCTION(module_newMotorJoint2), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("float getDistance(Fixture@ a, Fixture@ b)", asFUNCTION(module_getDistance), asCALL_CDECL);
 

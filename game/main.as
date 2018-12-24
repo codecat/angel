@@ -914,10 +914,10 @@ class StatePos
 
 class State
 {
-	int t0, t1;
-	int x0, x1;
-	int y0, y1;
-	int r0, r1;
+	float t0, t1;
+	float x0, x1;
+	float y0, y1;
+	float r0, r1;
 
 	State(angel::physics::Body@ body)
 	{
@@ -932,7 +932,7 @@ class State
 		r1 = r0;
 	}
 
-	void save(angel::physics::Body@ body, int t)
+	void save(angel::physics::Body@ body, float t)
 	{
 		t0 = t1;
 		x0 = x1;
@@ -945,12 +945,12 @@ class State
 		r1 = body.getAngle();
 	}
 
-	StatePos get(int t)
+	StatePos get(float t)
 	{
 		t = min(t, t1);
 		t = max(t, t0);
 
-		float p = float(t - t0) / float(t1 - t0);
+		float p = (t - t0) / (t1 - t0);
 
 		StatePos ret;
 		ret.x = x0 + p * (x1 - x0);
@@ -962,12 +962,18 @@ class State
 
 class Blink
 {
-	int closed_t = 0;
-	int next_blink_t = 5;
+	float closed_t = 0;
+	float next_blink_t = 5;
 
-	void update(int dt)
+	void update(float dt)
 	{
-		//TODO
+		next_blink_t = max(0.0f, next_blink_t - dt);
+		closed_t = max(0.0f, closed_t - dt);
+
+		if (next_blink_t == 0) {
+			next_blink_t = 5.0f + randf() * 3.0f;
+			closed_t = 0.1f;
+		}
 	}
 
 	bool is_closed()
@@ -993,14 +999,15 @@ class Duckloon
 	Duckloon(angel::physics::World@ world, float x, float y)
 	{
 		@body = angel::physics::newBody(world, x, y, angel::physics::BodyType::Dynamic);
-		//TODO: body stuff
+		body.setLinearDamping(0.8f);
+		body.setAngularDamping(0.8f);
 		@shape = angel::physics::newPolygonShape({
-			// vec2(-55, -60),
-			// vec2(0, 90),
-			// vec2(55, -60)
+			vec2(-55, -60),
+			vec2(0, 90),
+			vec2(55, -60)
 		});
 		@fixture = angel::physics::newFixture(body, shape, 1);
-		//TODO: fixture stuff
+		fixture.setRestitution(0.5f);
 		@pin = angel::physics::newMouseJoint(body, x, y - 80);
 
 		@img_normal = G::img_duckloon_normal;
@@ -1014,10 +1021,13 @@ class Duckloon
 	void step()
 	{
 		state.save(body, g_step);
-		//TODO
+
+		if (int(g_step % 5) == 0) {
+			body.applyForce(randi(30, 50), 0);
+		}
 	}
 
-	void update(int dt)
+	void update(float dt)
 	{
 		blink.update(dt);
 	}
@@ -1029,8 +1039,7 @@ class Duckloon
 
 	vec2 attachment_point()
 	{
-		//TODO
-		return vec2();
+		return body.getWorldPoint(4, 90);
 	}
 }
 
@@ -1099,7 +1108,7 @@ class Clouds
 	}
 }
 
-int g_step;
+float g_step;
 
 angel::physics::World@ g_world;
 Duckloon@ g_duckloon;
