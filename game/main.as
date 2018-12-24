@@ -380,7 +380,7 @@ void create_world()
 
 void angel_load()
 {
-	angel::window::setTitle("ANGEL " + angel::getVersion() + " (" + angel::getVersionCodename() + ")");
+	angel::window::setTitle("Angel " + angel::getVersion() + " (" + angel::getVersionCodename() + ")");
 
 	R::loadContent();
 
