@@ -1,5 +1,7 @@
 #include <angel_modules/data.h>
 
+#include <class_register.h>
+
 #include <modules/data/DataModule.h>
 #include <modules/data/CompressedData.h>
 
@@ -75,9 +77,7 @@ void RegisterData(asIScriptEngine* engine)
 	engine->RegisterEnumValue("HashFunction", "SHA512", love::data::HashFunction::FUNCTION_SHA512);
 
 	// CompressedData
-	engine->RegisterObjectType("CompressedData", 0, asOBJ_REF);
-	engine->RegisterObjectBehaviour("CompressedData", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
-	engine->RegisterObjectBehaviour("CompressedData", asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
+	auto regCompressedData = ClassRegister::New(engine, "CompressedData", 0, asOBJ_REF, "Data");
 
 	// Module
 	engine->RegisterGlobalFunction("Data@ newDataView(Data@ data, uint64 offset, uint64 size)", asFUNCTION(module_newDataView), asCALL_CDECL);

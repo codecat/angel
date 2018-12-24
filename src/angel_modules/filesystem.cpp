@@ -5,6 +5,8 @@
 
 #include <scriptarray/scriptarray.h>
 
+#include <class_register.h>
+
 #define instance() (love::Module::getInstance<love::filesystem::Filesystem>(love::Module::M_FILESYSTEM))
 
 // File
@@ -96,16 +98,14 @@ void RegisterFilesystem(asIScriptEngine* engine, const char* argv0)
 	engine->RegisterObjectProperty("Info", "FileType type", asOFFSET(love::filesystem::Filesystem::Info, type));
 
 	// FileData
-	engine->RegisterObjectType("FileData", 0, asOBJ_REF);
-	engine->RegisterObjectBehaviour("FileData", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
-	engine->RegisterObjectBehaviour("FileData", asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
+	auto regFileData = ClassRegister::New(engine, "FileData", 0, asOBJ_REF, "Data");
 
-	engine->RegisterObjectMethod("FileData", "FileData@ clone() const", asMETHOD(love::filesystem::FileData, clone), asCALL_THISCALL);
+	regFileData->Method("FileData@ clone() const", asMETHOD(love::filesystem::FileData, clone), asCALL_THISCALL);
 	//TODO: data (void*) & size (64 or 32 bit size_t)
 
-	engine->RegisterObjectMethod("FileData", "const string &getFilename() const", asMETHOD(love::filesystem::FileData, getFilename), asCALL_THISCALL);
-	engine->RegisterObjectMethod("FileData", "const string &getExtension() const", asMETHOD(love::filesystem::FileData, getExtension), asCALL_THISCALL);
-	engine->RegisterObjectMethod("FileData", "const string &getName() const", asMETHOD(love::filesystem::FileData, getName), asCALL_THISCALL);
+	regFileData->Method("const string &getFilename() const", asMETHOD(love::filesystem::FileData, getFilename), asCALL_THISCALL);
+	regFileData->Method("const string &getExtension() const", asMETHOD(love::filesystem::FileData, getExtension), asCALL_THISCALL);
+	regFileData->Method("const string &getName() const", asMETHOD(love::filesystem::FileData, getName), asCALL_THISCALL);
 
 	// Mode
 	engine->RegisterEnum("Mode");
@@ -121,26 +121,24 @@ void RegisterFilesystem(asIScriptEngine* engine, const char* argv0)
 	engine->RegisterEnumValue("BufferMode", "Full", love::filesystem::File::BUFFER_FULL);
 
 	// File
-	engine->RegisterObjectType("File", 0, asOBJ_REF);
-	engine->RegisterObjectBehaviour("File", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
-	engine->RegisterObjectBehaviour("File", asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
+	auto regFile = ClassRegister::New(engine, "File", 0, asOBJ_REF, "Object");
 
-	engine->RegisterObjectMethod("File", "int64 getSize()", asFUNCTION(file_getSize), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool open(Mode mode)", asFUNCTION(file_open), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool close()", asFUNCTION(file_close), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool isOpen()", asFUNCTION(file_isOpen), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "FileData@ read(int64 size)", asFUNCTION(file_read), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool write(FileData@ data, int64 size)", asFUNCTION(file_write), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool flush()", asFUNCTION(file_flush), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool isEOF()", asFUNCTION(file_isEOF), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "int64 tell()", asFUNCTION(file_tell), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool seek(uint64 pos)", asFUNCTION(file_seek), asCALL_CDECL_OBJFIRST);
-	//engine->RegisterObjectMethod("File", "", asFUNCTION(file_), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "bool setBuffer(BufferMode bufmode, int64 size)", asFUNCTION(file_setBuffer), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "BufferMode getBuffer(int64 &out size)", asFUNCTION(file_getBuffer), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "Mode getMode()", asFUNCTION(file_getMode), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "const string &getFilename()", asFUNCTION(file_getFilename), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("File", "string getExtension()", asFUNCTION(file_getExtension), asCALL_CDECL_OBJFIRST);
+	regFile->Method("int64 getSize()", asFUNCTION(file_getSize), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool open(Mode mode)", asFUNCTION(file_open), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool close()", asFUNCTION(file_close), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool isOpen()", asFUNCTION(file_isOpen), asCALL_CDECL_OBJFIRST);
+	regFile->Method("FileData@ read(int64 size)", asFUNCTION(file_read), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool write(FileData@ data, int64 size)", asFUNCTION(file_write), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool flush()", asFUNCTION(file_flush), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool isEOF()", asFUNCTION(file_isEOF), asCALL_CDECL_OBJFIRST);
+	regFile->Method("int64 tell()", asFUNCTION(file_tell), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool seek(uint64 pos)", asFUNCTION(file_seek), asCALL_CDECL_OBJFIRST);
+	//regFile->Method("", asFUNCTION(file_), asCALL_CDECL_OBJFIRST);
+	regFile->Method("bool setBuffer(BufferMode bufmode, int64 size)", asFUNCTION(file_setBuffer), asCALL_CDECL_OBJFIRST);
+	regFile->Method("BufferMode getBuffer(int64 &out size)", asFUNCTION(file_getBuffer), asCALL_CDECL_OBJFIRST);
+	regFile->Method("Mode getMode()", asFUNCTION(file_getMode), asCALL_CDECL_OBJFIRST);
+	regFile->Method("const string &getFilename()", asFUNCTION(file_getFilename), asCALL_CDECL_OBJFIRST);
+	regFile->Method("string getExtension()", asFUNCTION(file_getExtension), asCALL_CDECL_OBJFIRST);
 
 	// Module
 	engine->RegisterGlobalFunction("void setFused(bool fused)", asFUNCTION(module_setFused), asCALL_CDECL);

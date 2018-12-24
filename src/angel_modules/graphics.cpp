@@ -10,6 +10,8 @@
 
 #include <glm/vec2.hpp>
 
+#include <class_register.h>
+
 #define instance() (love::Module::getInstance<love::graphics::Graphics>(love::Module::M_GRAPHICS))
 
 static void module_reset() { instance()->reset(); }
@@ -20,8 +22,19 @@ static void module_clear4(const love::Colorf &color, int stencil, double depth) 
 //static void module_discard() { instance()->discard(); }
 static void module_present() { instance()->present(nullptr); }
 
+static love::graphics::Image* module_newImage(love::Data* data)
+{
+	love::graphics::Image::Slices slices(love::graphics::TEXTURE_2D);
+
+	love::graphics::Image::Settings settings;
+	//TODO: configure settings (mipmaps, linear, dpiScale)
+
+	love::image::ImageData* imgData = new love::image::ImageData(data);
+	slices.set(0, 0, imgData);
+
+	return instance()->newImage(slices, settings);
+}
 /*
-static void module_newImage() { instance()->newImage(); }
 static void module_newArrayImage() { instance()->newArrayImage(); }
 static void module_newVolumeImage() { instance()->newVolumeImage(); }
 static void module_newCubeImage() { instance()->newCubeImage(); }
@@ -216,6 +229,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 
 	engine->SetDefaultNamespace("angel::graphics");
 
+	// Module
 	engine->RegisterGlobalFunction("void reset()", asFUNCTION(module_reset), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void clear()", asFUNCTION(module_clear), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void clear(const Colorf &in color)", asFUNCTION(module_clear2), asCALL_CDECL);
@@ -224,8 +238,8 @@ void RegisterGraphics(asIScriptEngine* engine)
 	//engine->RegisterGlobalFunction("void discard()", asFUNCTION(module_discard), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void present()", asFUNCTION(module_present), asCALL_CDECL);
 
+	engine->RegisterGlobalFunction("Image@ newImage(Data@ data)", asFUNCTION(module_newImage), asCALL_CDECL);
 	/*
-	engine->RegisterGlobalFunction("void newImage()", asFUNCTION(module_newImage), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void newArrayImage()", asFUNCTION(module_newArrayImage), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void newVolumeImage()", asFUNCTION(module_newVolumeImage), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void newCubeImage()", asFUNCTION(module_newCubeImage), asCALL_CDECL);

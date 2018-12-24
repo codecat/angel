@@ -2,6 +2,7 @@
 
 #include <common/version.h>
 #include <common/Module.h>
+#include <common/Object.h>
 
 #include <modules/love/love.h>
 
@@ -14,8 +15,12 @@
 
 #include <angel_common/variant.h>
 #include <angel_common/color.h>
+#include <angel_common/pixelformat.h>
 #include <angel_common/data/data.h>
 #include <angel_common/math/vec2.h>
+#include <angel_common/graphics/drawable.h>
+#include <angel_common/graphics/texture.h>
+#include <angel_common/graphics/image.h>
 
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
@@ -23,8 +28,12 @@
 #include <angel_modules/window.h>
 #include <angel_modules/graphics.h>
 #include <angel_modules/data.h>
+#include <angel_modules/image.h>
 
 #include <modules/filesystem/Filesystem.h>
+
+#include <script_call.h>
+#include <class_register.h>
 
 static int g_argc;
 static char* g_argv0;
@@ -35,54 +44,6 @@ enum DoneAction
 {
 	done_Restart,
 	done_Quit,
-};
-
-class CScriptCall
-{
-public:
-	asIScriptContext* m_ctx;
-	asIScriptFunction* m_func;
-
-public:
-	CScriptCall(asIScriptContext* ctx, asIScriptFunction* func)
-	{
-		m_ctx = ctx;
-		m_func = func;
-
-		if (m_func != nullptr) {
-			if (m_ctx->GetState() == asEXECUTION_ACTIVE) {
-				m_ctx->PushState();
-			}
-			m_ctx->Prepare(m_func);
-		}
-	}
-
-	void SetArg(int index, int num) { if (m_func == nullptr) { return; } m_ctx->SetArgDWord(index, num); }
-	void SetArg(int index, double num) { if (m_func == nullptr) { return; } m_ctx->SetArgDouble(index, num); }
-	void SetArg(int index, void* obj) { if (m_func == nullptr) { return; } m_ctx->SetArgObject(index, obj); }
-
-	bool Execute()
-	{
-		if (m_func == nullptr) {
-			return false;
-		}
-
-		m_ctx->Execute();
-		if (m_ctx->GetState() == asEXECUTION_EXCEPTION) {
-			printf("| Script exception: %s\n", m_ctx->GetExceptionString());
-			for (asUINT i = 0; i < m_ctx->GetCallstackSize(); i++) {
-				asIScriptFunction* frameFunc = m_ctx->GetFunction(i);
-				int frameLine = m_ctx->GetLineNumber(i);
-				printf("|   %s (Line %d)\n", frameFunc->GetDeclaration(true, true), frameLine);
-			}
-		}
-		if (m_ctx->IsNested()) {
-			m_ctx->PopState();
-		} else {
-			m_ctx->Unprepare();
-		}
-		return true;
-	}
 };
 
 static void ScriptPrint(const std::string &str)
@@ -178,16 +139,26 @@ static DoneAction runangel()
 	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
 
 	engine->SetDefaultNamespace("angel");
+
+	auto regObject = ClassRegister::New(engine, "Object", 0, asOBJ_REF);
+	regObject->Behavior(asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
+	regObject->Behavior(asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
+
 	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
+
 	engine->SetDefaultNamespace("");
 
 	// Common bindings
 	RegisterVariant(engine);
 	RegisterColor(engine);
+	RegisterPixelFormat(engine);
 	RegisterDataData(engine);
 	RegisterMathVec2(engine);
+	RegisterGraphicsDrawable(engine);
+	RegisterGraphicsTexture(engine);
+	RegisterGraphicsImage(engine);
 
 	// Module bindings
 	RegisterFilesystem(engine, g_argv0);
@@ -196,6 +167,7 @@ static DoneAction runangel()
 	RegisterWindow(engine);
 	RegisterGraphics(engine);
 	RegisterData(engine);
+	RegisterImage(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");
@@ -236,6 +208,8 @@ static DoneAction runangel()
 
 	asIScriptFunction* funcRun = modBoot->GetFunctionByDecl("void angel_run()");
 	CScriptCall(g_ctx, funcRun).Execute();
+
+	ClassRegister::Clear();
 
 	return done;
 }

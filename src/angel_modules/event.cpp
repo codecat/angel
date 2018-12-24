@@ -5,6 +5,8 @@
 
 #include <scriptarray/scriptarray.h>
 
+#include <class_register.h>
+
 #define instance() (love::Module::getInstance<love::event::Event>(love::Module::M_EVENT))
 
 static std::string message_getName(love::event::Message* self)
@@ -54,12 +56,9 @@ void RegisterEvent(asIScriptEngine* engine)
 	engine->SetDefaultNamespace("angel::event");
 
 	// Message
-	engine->RegisterObjectType("Message", 0, asOBJ_REF);
-	engine->RegisterObjectBehaviour("Message", asBEHAVE_ADDREF, "void f()", asMETHOD(love::Object, retain), asCALL_THISCALL);
-	engine->RegisterObjectBehaviour("Message", asBEHAVE_RELEASE, "void f()", asMETHOD(love::Object, release), asCALL_THISCALL);
-
-	engine->RegisterObjectMethod("Message", "string getName()", asFUNCTION(message_getName), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectMethod("Message", "array<Variant>@ getArgs()", asFUNCTION(message_getArgs), asCALL_CDECL_OBJFIRST);
+	auto regMessage = ClassRegister::New(engine, "Message", 0, asOBJ_REF, "Object");
+	regMessage->Method("string getName()", asFUNCTION(message_getName), asCALL_CDECL_OBJFIRST);
+	regMessage->Method("array<Variant>@ getArgs()", asFUNCTION(message_getArgs), asCALL_CDECL_OBJFIRST);
 
 	// Module
 	engine->RegisterGlobalFunction("void pump()", asFUNCTION(module_pump), asCALL_CDECL);
