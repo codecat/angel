@@ -1060,11 +1060,28 @@ void angel_load()
 {
 	R::loadContent();
 
-	@G::img_duckloon_normal = angel::graphics::newImage(R::duckloon::normal_png);
-	print("Image loaded!");
-	print("  Width: " + G::img_duckloon_normal.getWidth());
-	print("  Height: " + G::img_duckloon_normal.getHeight());
-	//@G::img_duckloon_blink = angel::graphics::newImage(R::duckloon::blink);
-
 	angel::graphics::setBackgroundColor(angel::Color(43, 165, 223, 255));
+
+	@G::img_duckloon_normal = angel::graphics::newImage(R::duckloon::normal_png);
+	@G::img_duckloon_blink = angel::graphics::newImage(R::duckloon::blink_png);
+
+	@G::img_n = angel::graphics::newImage(R::chain::n_png);
+	@G::img_o = angel::graphics::newImage(R::chain::o_png);
+	@G::img_g = angel::graphics::newImage(R::chain::g_png);
+	@G::img_a = angel::graphics::newImage(R::chain::a_png);
+	@G::img_m = angel::graphics::newImage(R::chain::m_png);
+	@G::img_e = angel::graphics::newImage(R::chain::e_png);
+	@G::img_square = angel::graphics::newImage(R::chain::square_png);
+
+	@G::img_cloud_1 = angel::graphics::newImage(R::bg::cloud_1_png);
+	@G::img_cloud_2 = angel::graphics::newImage(R::bg::cloud_2_png);
+	@G::img_cloud_3 = angel::graphics::newImage(R::bg::cloud_3_png);
+	@G::img_cloud_4 = angel::graphics::newImage(R::bg::cloud_4_png);
+
+	G::cloud_images.insertLast(G::img_cloud_1);
+	G::cloud_images.insertLast(G::img_cloud_2);
+	G::cloud_images.insertLast(G::img_cloud_3);
+	G::cloud_images.insertLast(G::img_cloud_4);
+
+	create_world();
 }
