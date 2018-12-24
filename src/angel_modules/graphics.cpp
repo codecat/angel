@@ -172,12 +172,12 @@ static void module_printf() { instance()->printf(); }
 
 static void module_isCreated() { instance()->isCreated(); }
 */
-static bool module_isActive() { instance()->isActive(); }
+static bool module_isActive() { return instance()->isActive(); }
 /*
 static void module_isGammaCorrect() { instance()->isGammaCorrect(); }
 */
-static int module_getWidth() { instance()->getWidth(); }
-static int module_getHeight() { instance()->getHeight(); }
+static int module_getWidth() { return instance()->getWidth(); }
+static int module_getHeight() { return instance()->getHeight(); }
 static glm::vec2 module_getDimensions() { return glm::vec2(instance()->getWidth(), instance()->getHeight()); }
 /*
 static void module_getPixelWidth() { instance()->getPixelWidth(); }
