@@ -196,9 +196,8 @@ static void module_print(const std::string &s, const glm::vec2 &pos, float r, co
 static void module_isCreated() { instance()->isCreated(); }
 */
 static bool module_isActive() { return instance()->isActive(); }
-/*
-static void module_isGammaCorrect() { instance()->isGammaCorrect(); }
-*/
+static void module_setGammaCorrect(bool gammacorrect) { love::graphics::setGammaCorrect(gammacorrect); }
+static bool module_isGammaCorrect() { return love::graphics::isGammaCorrect(); }
 static int module_getWidth() { return instance()->getWidth(); }
 static int module_getHeight() { return instance()->getHeight(); }
 static glm::vec2 module_getDimensions() { return glm::vec2(instance()->getWidth(), instance()->getHeight()); }
@@ -370,9 +369,8 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void isCreated()", asFUNCTION(module_isCreated), asCALL_CDECL);
 	*/
 	engine->RegisterGlobalFunction("bool isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
-	/*
-	engine->RegisterGlobalFunction("void isGammaCorrect()", asFUNCTION(module_isGammaCorrect), asCALL_CDECL);
-	*/
+	engine->RegisterGlobalFunction("void setGammaCorrect(bool gammacorrect)", asFUNCTION(module_setGammaCorrect), asCALL_CDECL);
+	engine->RegisterGlobalFunction("bool isGammaCorrect()", asFUNCTION(module_isGammaCorrect), asCALL_CDECL);
 	engine->RegisterGlobalFunction("int getWidth()", asFUNCTION(module_getWidth), asCALL_CDECL);
 	engine->RegisterGlobalFunction("int getHeight()", asFUNCTION(module_getHeight), asCALL_CDECL);
 	engine->RegisterGlobalFunction("vec2 getDimensions()", asFUNCTION(module_getDimensions), asCALL_CDECL);

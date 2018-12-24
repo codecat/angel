@@ -440,4 +440,5 @@ void angel_graphics_init()
 	}
 
 	angel::graphics::_setDefaultShaderCode(defaults, defaults_gammacorrect);
+	angel::graphics::setGammaCorrect(true);
 }
