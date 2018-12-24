@@ -192,9 +192,7 @@ static void module_print(const std::string &s, const glm::vec2 &pos, float r, co
 	instance()->print(str, m);
 }
 
-/*
-static void module_isCreated() { instance()->isCreated(); }
-*/
+static bool module_isCreated() { return instance()->isCreated(); }
 static bool module_isActive() { return instance()->isActive(); }
 static void module_setGammaCorrect(bool gammacorrect) { love::graphics::setGammaCorrect(gammacorrect); }
 static bool module_isGammaCorrect() { return love::graphics::isGammaCorrect(); }
@@ -365,9 +363,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 
 	engine->RegisterGlobalFunction("void print(const string &in s, const vec2 &in pos = vec2(), float r = 0.0f, const vec2 &in scale = vec2(1.0f, 1.0f), const vec2 &in origin = vec2(), const vec2 &in shear = vec2())", asFUNCTION(module_print), asCALL_CDECL);
 
-	/*
-	engine->RegisterGlobalFunction("void isCreated()", asFUNCTION(module_isCreated), asCALL_CDECL);
-	*/
+	engine->RegisterGlobalFunction("bool isCreated()", asFUNCTION(module_isCreated), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setGammaCorrect(bool gammacorrect)", asFUNCTION(module_setGammaCorrect), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool isGammaCorrect()", asFUNCTION(module_isGammaCorrect), asCALL_CDECL);

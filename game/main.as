@@ -380,6 +380,8 @@ void create_world()
 
 void angel_load()
 {
+	angel::window::setTitle("ANGEL " + angel::getVersion() + " (" + angel::getVersionCodename() + ")");
+
 	R::loadContent();
 
 	angel::graphics::setBackgroundColor(angel::Color(43, 165, 223, 255));

@@ -104,6 +104,16 @@ static asIScriptFunction* g_funcGameLoad = nullptr;
 static asIScriptFunction* g_funcGameUpdate = nullptr;
 static asIScriptFunction* g_funcGameDraw = nullptr;
 
+static std::string ScriptGetVersion()
+{
+	return love::VERSION;
+}
+
+static std::string ScriptGetVersionCodename()
+{
+	return love::VERSION_CODENAME;
+}
+
 static void ScriptGameLoad()
 {
 	CScriptCall(g_ctx, g_funcGameLoad).Execute();
@@ -142,6 +152,9 @@ static DoneAction runangel()
 	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
 
 	engine->SetDefaultNamespace("angel");
+
+	engine->RegisterGlobalFunction("string getVersion()", asFUNCTION(ScriptGetVersion), asCALL_CDECL);
+	engine->RegisterGlobalFunction("string getVersionCodename()", asFUNCTION(ScriptGetVersionCodename), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
