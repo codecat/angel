@@ -29,6 +29,7 @@
 #include <angel_modules/graphics.h>
 #include <angel_modules/data.h>
 #include <angel_modules/image.h>
+#include <angel_modules/physics.h>
 
 #include <modules/filesystem/Filesystem.h>
 
@@ -168,6 +169,7 @@ static DoneAction runangel()
 	RegisterGraphics(engine);
 	RegisterData(engine);
 	RegisterImage(engine);
+	RegisterPhysics(engine);
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");

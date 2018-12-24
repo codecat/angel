@@ -66,6 +66,9 @@ add_executable(angel
 	src/angel_modules/image.cpp
 	src/angel_modules/image.h
 
+	src/angel_modules/physics.cpp
+	src/angel_modules/physics.h
+
 	# Angelscript add-ons
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
 	angelscript/sdk/add_on/scriptarray/scriptarray.h
@@ -88,6 +91,7 @@ include_directories(
 	# Love
 	../love/src/
 	../love/src/modules/
+	../love/src/libraries/
 
 	# Temporary absolute paths
 	/usr/include/SDL2/

@@ -914,25 +914,48 @@ class StatePos
 
 class State
 {
-	int t0;
-	int x0;
-	int y0;
-	int r0;
+	int t0, t1;
+	int x0, x1;
+	int y0, y1;
+	int r0, r1;
 
-	State(/*angel::physics::Body@ body*/)
+	State(angel::physics::Body@ body)
 	{
-		//TODO
+		t0 = 0;
+		x0 = body.getX();
+		y0 = body.getY();
+		r0 = body.getAngle();
+
+		t1 = t0;
+		x1 = x0;
+		y1 = y0;
+		r1 = r0;
 	}
 
-	void save(/*angel::physics::Body@ body,*/ int t)
+	void save(angel::physics::Body@ body, int t)
 	{
-		//TODO
+		t0 = t1;
+		x0 = x1;
+		y0 = y1;
+		r0 = r1;
+
+		t1 = t;
+		x1 = body.getX();
+		y1 = body.getY();
+		r1 = body.getAngle();
 	}
 
 	StatePos get(int t)
 	{
+		t = min(t, t1);
+		t = max(t, t0);
+
+		float p = float(t - t0) / float(t1 - t0);
+
 		StatePos ret;
-		//TODO
+		ret.x = x0 + p * (x1 - x0);
+		ret.y = y0 + p * (y1 - y0);
+		ret.r = r0 + p * (r1 - r0);
 		return ret;
 	}
 }
@@ -955,18 +978,42 @@ class Blink
 
 class Duckloon
 {
+	angel::physics::Body@ body;
+	angel::physics::Shape@ shape;
+	angel::physics::Fixture@ fixture;
+	angel::physics::Joint@ pin;
+
+	angel::graphics::Image@ img_normal;
+	angel::graphics::Image@ img_blink;
+	angel::graphics::Image@ img;
+
 	State@ state;
 	Blink@ blink;
 
-	Duckloon(/*angel::physics::World@ world, */float x, float y)
+	Duckloon(angel::physics::World@ world, float x, float y)
 	{
-		//TODO
+		@body = angel::physics::newBody(world, x, y, angel::physics::BodyType::Dynamic);
+		//TODO: body stuff
+		@shape = angel::physics::newPolygonShape({
+			// vec2(-55, -60),
+			// vec2(0, 90),
+			// vec2(55, -60)
+		});
+		@fixture = angel::physics::newFixture(body, shape, 1);
+		//TODO: fixture stuff
+		@pin = angel::physics::newMouseJoint(body, x, y - 80);
+
+		@img_normal = G::img_duckloon_normal;
+		@img_blink = G::img_duckloon_blink;
+		@img = img_normal;
+
 		@blink = Blink();
-		@state = State(/*body*/);
+		@state = State(body);
 	}
 
 	void step()
 	{
+		state.save(body, g_step);
 		//TODO
 	}
 
@@ -995,7 +1042,7 @@ class ChainLink
 
 class Chain
 {
-	Chain(/*angel::physics::World@ world, */float x, float y, Duckloon@ duckloon)
+	Chain(angel::physics::World@ world, float x, float y, Duckloon@ duckloon)
 	{
 		//TODO
 	}
@@ -1052,8 +1099,16 @@ class Clouds
 	}
 }
 
+int g_step;
+
+angel::physics::World@ g_world;
+Duckloon@ g_duckloon;
+
 void create_world()
 {
+	vec2 worldSize = angel::graphics::getDimensions();
+	@g_world = angel::physics::newWorld(0, 9.81f * 64);
+	@g_duckloon = Duckloon(g_world, worldSize.x / 2, worldSize.y / 2 - 100);
 }
 
 void angel_load()
@@ -1061,6 +1116,7 @@ void angel_load()
 	R::loadContent();
 
 	angel::graphics::setBackgroundColor(angel::Color(43, 165, 223, 255));
+	angel::physics::setMeter(64);
 
 	@G::img_duckloon_normal = angel::graphics::newImage(R::duckloon::normal_png);
 	@G::img_duckloon_blink = angel::graphics::newImage(R::duckloon::blink_png);
