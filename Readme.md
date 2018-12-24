@@ -18,6 +18,7 @@ Eventually I plan to get everything from LÖVE 11.2 to bind to AngelScript, so t
 - [ ] Embedding game in binary
 - [ ] All modules have base registrations
 - [ ] Complete 11.2 API coverage
+- [ ] Automated testing
 
 ## Screenshot
 This screenshot shows the "no game" screen ported to AngelScript. The source for this can be found in [the game directory](/game).
