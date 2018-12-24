@@ -10,7 +10,7 @@ static void ScriptVec2Ctor(glm::vec2* self, float x, float y)
 
 void RegisterMathVec2(asIScriptEngine* engine)
 {
-	engine->RegisterObjectType("vec2", sizeof(glm::vec2), asOBJ_VALUE | asOBJ_APP_CLASS_ALLFLOATS | asGetTypeTraits<glm::vec2>());
+	engine->RegisterObjectType("vec2", sizeof(glm::vec2), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_ALLFLOATS | asGetTypeTraits<glm::vec2>());
 	engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ScriptCtor<glm::vec2>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(const vec2 &in copy)", asFUNCTION(ScriptCopyCtor<glm::vec2>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(float x, float y)", asFUNCTION(ScriptVec2Ctor), asCALL_CDECL_OBJFIRST);

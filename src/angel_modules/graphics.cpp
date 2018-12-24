@@ -53,10 +53,10 @@ static void module_validateShader() { instance()->validateShader(); }
 
 static void module_setCanvas() { instance()->setCanvas(); }
 static void module_getCanvas() { instance()->getCanvas(); }
-
-static void module_setColor() { instance()->setColor(); }
-static void module_getColor() { instance()->getColor(); }
 */
+
+static void module_setColor(const love::Colorf &c) { instance()->setColor(c); }
+static love::Colorf module_getColor() { return instance()->getColor(); }
 static void module_setBackgroundColor(const love::Colorf &c) { instance()->setBackgroundColor(c); }
 static love::Colorf module_getBackgroundColor() { return instance()->getBackgroundColor(); }
 
@@ -162,8 +162,29 @@ static void module_getTextureTypes() { instance()->getTextureTypes(); }
 static void module_getStats() { instance()->getStats(); }
 
 static void module_captureScreenshot() { instance()->captureScreenshot(); }
+*/
 
-static void module_draw() { instance()->draw(); }
+static void module_draw(love::graphics::Drawable* drawable, const glm::vec2 &pos, float r, const glm::vec2 &scale, const glm::vec2 &origin, const glm::vec2 &shear)
+{
+	/*
+	love::math::Transform t;
+	t.translate(pos.x, pos.y);
+	t.rotate(r);
+	t.scale(scale.x, scale.y);
+	t.shear(shear.x, shear.y);
+
+	instance()->draw(drawable, t.getMatrix());
+	*/
+
+	love::Matrix4 m;
+	m.translate(pos.x, pos.y);
+	m.rotate(r);
+	m.scale(scale.x, scale.y);
+	m.shear(shear.x, shear.y);
+	instance()->draw(drawable, m);
+}
+
+/*
 static void module_drawLayer() { instance()->drawLayer(); }
 static void module_drawInstanced() { instance()->drawInstanced(); }
 
@@ -258,10 +279,10 @@ void RegisterGraphics(asIScriptEngine* engine)
 
 	engine->RegisterGlobalFunction("void setCanvas()", asFUNCTION(module_setCanvas), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getCanvas()", asFUNCTION(module_getCanvas), asCALL_CDECL);
-
-	engine->RegisterGlobalFunction("void setColor()", asFUNCTION(module_setColor), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getColor()", asFUNCTION(module_getColor), asCALL_CDECL);
 	*/
+
+	engine->RegisterGlobalFunction("void setColor(const Colorf &in c)", asFUNCTION(module_setColor), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Colorf getColor()", asFUNCTION(module_getColor), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setBackgroundColor(const Colorf &in c)", asFUNCTION(module_setBackgroundColor), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Colorf getBackgroundColor()", asFUNCTION(module_getBackgroundColor), asCALL_CDECL);
 
@@ -310,8 +331,11 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void getStats()", asFUNCTION(module_getStats), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("void captureScreenshot()", asFUNCTION(module_captureScreenshot), asCALL_CDECL);
+	*/
 
-	engine->RegisterGlobalFunction("void draw()", asFUNCTION(module_draw), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void draw(Drawable@ drawable, const vec2 &in pos = vec2(), float r = 0.0f, const vec2 &in scale = vec2(1.0f, 1.0f), const vec2 &in origin = vec2(), const vec2 &in shear = vec2())", asFUNCTION(module_draw), asCALL_CDECL);
+
+	/*
 	engine->RegisterGlobalFunction("void drawLayer()", asFUNCTION(module_drawLayer), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void drawInstanced()", asFUNCTION(module_drawInstanced), asCALL_CDECL);
 

@@ -262,6 +262,7 @@ class CloudTrack
 	float h_spacing;
 
 	angel::graphics::Image@ img;
+	int initial_img;
 
 	float w;
 	float speed;
@@ -276,7 +277,8 @@ class CloudTrack
 		@img = _img;
 		w = h_spacing + img.getWidth();
 		speed = _speed;
-		count = int(angel::graphics::getWidth() / w + 1);
+		count = int(angel::graphics::getWidth() / w + 2);
+		initial_img = randi(4);
 	}
 
 	void update(int dt)
@@ -285,7 +287,18 @@ class CloudTrack
 
 	void draw()
 	{
-		//TODO
+		float abs_offset = (initial_offset + (speed * g_t));
+		float offset = abs_offset % w;
+		angel::graphics::setColor(angel::Colorf(1, 1, 1, 0.3f));
+		for (int i = 0; i < count; i++) {
+			vec2 pos(x + i * (img.getWidth() + h_spacing) + offset - w, y);
+			int img_no = int(abs_offset / w);
+			int index = (initial_img + 1 + i + 1 - img_no) % 4;
+			while (index < 0) {
+				index += 4;
+			}
+			angel::graphics::draw(G::cloud_images[index], pos, -0.05f);
+		}
 	}
 }
 
@@ -366,7 +379,7 @@ void angel_load()
 	create_world();
 }
 
-void angel_update(float dt)
+void angel_update(double dt)
 {
 	g_t += dt;
 
@@ -386,5 +399,5 @@ void angel_update(float dt)
 
 void angel_draw()
 {
-	//TODO
+	g_clouds.draw();
 }
