@@ -143,7 +143,7 @@ class Duckloon : Entity
 	{
 		state.save(body, g_step);
 
-		if (int(g_step % 5) == 0) {
+		if (int(g_step % 5.0f) == 0) {
 			body.applyForce(randi(30, 50), 0);
 		}
 	}
@@ -155,7 +155,16 @@ class Duckloon : Entity
 
 	void draw() override
 	{
-		//TODO
+		auto drawState = state.get(g_t);
+
+		angel::graphics::setColor(angel::Colorf(1, 1, 1));
+
+		auto img = img_normal;
+		if (blink.is_closed()) {
+			@img = img_blink;
+		}
+
+		angel::graphics::draw(img, vec2(drawState.x, drawState.y), drawState.r, vec2(1, 1), img.getDimensions() / 2.0f);
 	}
 
 	vec2 attachment_point()
@@ -226,7 +235,7 @@ class Chain : Entity
 		link.body.setLinearDamping(0.5f);
 		link.body.setAngularDamping(0.5f);
 		@link.shape = angel::physics::newCircleShape(link.radius);
-		@link.fixture = angel::physics::newFixture(link.body, link.shape, 0.1f / (links.length() + 1));
+		@link.fixture = angel::physics::newFixture(link.body, link.shape, 1.0f / (links.length() + 1));
 		@link.state = State(link.body);
 
 		if (prev !is null) {
@@ -249,7 +258,28 @@ class Chain : Entity
 
 	void draw() override
 	{
-		//TODO
+		array<vec2> rope;
+
+		for (uint i = 0; i < links.length(); i++) {
+			auto linkState = links[i].state.get(g_t);
+			rope.insertLast(vec2(linkState.x, linkState.y));
+		}
+
+		angel::graphics::setLineWidth(3);
+		angel::graphics::setColor(angel::Colorf(1, 1, 1, 0.7f));
+		angel::graphics::line(rope);
+
+		for (uint i = 0; i < links.length(); i++) {
+			auto link = links[i];
+			if (link.img is null) {
+				continue;
+			}
+
+			auto linkState = link.state.get(g_t);
+			vec2 origin = link.img.getDimensions() / 2.0f;
+			angel::graphics::setColor(angel::Colorf(1, 1, 1));
+			angel::graphics::draw(link.img, vec2(linkState.x, linkState.y), linkState.r, vec2(1, 1), origin);
+		}
 	}
 }
 
@@ -326,7 +356,7 @@ class Clouds
 
 float g_t;
 float g_step;
-const float STEP = 1/20.0f;
+const float STEP = 1.0f / 20.0f;
 
 angel::physics::World@ g_world;
 Duckloon@ g_duckloon;
@@ -400,4 +430,8 @@ void angel_update(double dt)
 void angel_draw()
 {
 	g_clouds.draw();
+
+	for (uint i = 0; i < g_entities.length(); i++) {
+		g_entities[i].draw();
+	}
 }

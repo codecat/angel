@@ -27,7 +27,7 @@ void RegisterColor(asIScriptEngine* engine)
 	engine->RegisterObjectType("Color", sizeof(love::Color), asOBJ_VALUE | asOBJ_APP_CLASS_ALLINTS | asGetTypeTraits<love::Color>());
 	engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ScriptCtor<love::Color>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(const Color &in copy)", asFUNCTION(ScriptCopyCtor<love::Color>), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(uint8 r, uint8 g, uint8 b, uint8 a)", asFUNCTION(ScriptColorCtor<unsigned char>), asCALL_CDECL_OBJFIRST);
+	engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(uint8 r, uint8 g, uint8 b, uint8 a = 255)", asFUNCTION(ScriptColorCtor<unsigned char>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("Color", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ScriptDtor<love::Color>), asCALL_CDECL_OBJFIRST);
 
 	engine->RegisterObjectProperty("Color", "uint8 r", asOFFSET(love::Color, r));
@@ -39,7 +39,7 @@ void RegisterColor(asIScriptEngine* engine)
 	engine->RegisterObjectType("Colorf", sizeof(love::Colorf), asOBJ_VALUE | asOBJ_APP_CLASS_ALLFLOATS | asGetTypeTraits<love::Colorf>());
 	engine->RegisterObjectBehaviour("Colorf", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ScriptCtor<love::Colorf>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("Colorf", asBEHAVE_CONSTRUCT, "void f(const Colorf &in copy)", asFUNCTION(ScriptCopyCtor<love::Colorf>), asCALL_CDECL_OBJFIRST);
-	engine->RegisterObjectBehaviour("Colorf", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a)", asFUNCTION(ScriptColorCtor<float>), asCALL_CDECL_OBJFIRST);
+	engine->RegisterObjectBehaviour("Colorf", asBEHAVE_CONSTRUCT, "void f(float r, float g, float b, float a = 1.0f)", asFUNCTION(ScriptColorCtor<float>), asCALL_CDECL_OBJFIRST);
 	engine->RegisterObjectBehaviour("Colorf", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(ScriptDtor<love::Colorf>), asCALL_CDECL_OBJFIRST);
 
 	engine->RegisterObjectProperty("Colorf", "float r", asOFFSET(love::Colorf, r));

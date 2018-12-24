@@ -17,6 +17,9 @@ static void Object_retain(love::Object* self)
 	}
 	*/
 	self->retain();
+	if (self->getReferenceCount() > 100) {
+		printf("WARNING: Ref count for object %p is %d!\n", self, self->getReferenceCount());
+	}
 }
 
 static void Object_release(love::Object* self)

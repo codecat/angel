@@ -7,6 +7,7 @@
 #include <modules/graphics/ShaderStage.h>
 
 #include <scriptdictionary/scriptdictionary.h>
+#include <scriptarray/scriptarray.h>
 
 #include <glm/vec2.hpp>
 
@@ -73,10 +74,14 @@ static void module_setDefaultFilter() { instance()->setDefaultFilter(); }
 static void module_getDefaultFilter() { instance()->getDefaultFilter(); }
 static void module_setDefaultMipmapFilter() { instance()->setDefaultMipmapFilter(); }
 static void module_getDefaultMipmapFilter() { instance()->getDefaultMipmapFilter(); }
-static void module_setLineWidth() { instance()->setLineWidth(); }
+*/
+static void module_setLineWidth(float width) { instance()->setLineWidth(width); }
+/*
 static void module_setLineStyle() { instance()->setLineStyle(); }
 static void module_setLineJoin() { instance()->setLineJoin(); }
-static void module_getLineWidth() { instance()->getLineWidth(); }
+*/
+static float module_getLineWidth() { return instance()->getLineWidth(); }
+/*
 static void module_getLineStyle() { instance()->getLineStyle(); }
 static void module_getLineJoin() { instance()->getLineJoin(); }
 static void module_setPointSize() { instance()->setPointSize(); }
@@ -166,31 +171,28 @@ static void module_captureScreenshot() { instance()->captureScreenshot(); }
 
 static void module_draw(love::graphics::Drawable* drawable, const glm::vec2 &pos, float r, const glm::vec2 &scale, const glm::vec2 &origin, const glm::vec2 &shear)
 {
-	/*
-	love::math::Transform t;
-	t.translate(pos.x, pos.y);
-	t.rotate(r);
-	t.scale(scale.x, scale.y);
-	t.shear(shear.x, shear.y);
-
-	instance()->draw(drawable, t.getMatrix());
-	*/
-
-	love::Matrix4 m;
-	m.translate(pos.x, pos.y);
-	m.rotate(r);
-	m.scale(scale.x, scale.y);
-	m.shear(shear.x, shear.y);
+	love::Matrix4 m(pos.x, pos.y, r, scale.x, scale.y, origin.x, origin.y, shear.x, shear.y);
 	instance()->draw(drawable, m);
 }
 
 /*
 static void module_drawLayer() { instance()->drawLayer(); }
 static void module_drawInstanced() { instance()->drawInstanced(); }
+*/
 
-static void module_print() { instance()->print(); }
-static void module_printf() { instance()->printf(); }
+static void module_print(const std::string &s, const glm::vec2 &pos, float r, const glm::vec2 &scale, const glm::vec2 &origin, const glm::vec2 &shear)
+{
+	std::vector<love::graphics::Font::ColoredString> str;
+	love::graphics::Font::ColoredString cs;
+	cs.str = s;
+	cs.color = love::Colorf(1.0f, 1.0f, 1.0f, 1.0f);
+	str.emplace_back(cs);
 
+	love::Matrix4 m(pos.x, pos.y, r, scale.x, scale.y, origin.x, origin.y, shear.x, shear.y);
+	instance()->print(str, m);
+}
+
+/*
 static void module_isCreated() { instance()->isCreated(); }
 */
 static bool module_isActive() { return instance()->isActive(); }
@@ -215,7 +217,25 @@ static void module_setStencilTest() { instance()->setStencilTest(); }
 static void module_getStencilTest() { instance()->getStencilTest(); }
 
 static void module_points() { instance()->points(); }
-static void module_line() { instance()->line(); }
+*/
+static void module_line(CScriptArray* vertices)
+{
+	asUINT numvertices = vertices->GetSize();
+	if (numvertices == 0) {
+		return;
+	}
+
+	love::Vector2* coords = instance()->getScratchBuffer<love::Vector2>(numvertices);
+
+	for (asUINT i = 0; i < numvertices; i++) {
+		auto &v = *(glm::vec2*)vertices->At(i);
+		coords[i].x = v.x;
+		coords[i].y = v.y;
+	}
+
+	instance()->polyline(coords, numvertices);
+}
+/*
 static void module_rectangle() { instance()->rectangle(); }
 static void module_circle() { instance()->circle(); }
 static void module_ellipse() { instance()->ellipse(); }
@@ -299,10 +319,14 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void getDefaultFilter()", asFUNCTION(module_getDefaultFilter), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setDefaultMipmapFilter()", asFUNCTION(module_setDefaultMipmapFilter), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getDefaultMipmapFilter()", asFUNCTION(module_getDefaultMipmapFilter), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void setLineWidth()", asFUNCTION(module_setLineWidth), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("void setLineWidth(float width)", asFUNCTION(module_setLineWidth), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void setLineStyle()", asFUNCTION(module_setLineStyle), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setLineJoin()", asFUNCTION(module_setLineJoin), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getLineWidth()", asFUNCTION(module_getLineWidth), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("float getLineWidth()", asFUNCTION(module_getLineWidth), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void getLineStyle()", asFUNCTION(module_getLineStyle), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getLineJoin()", asFUNCTION(module_getLineJoin), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void setPointSize()", asFUNCTION(module_setPointSize), asCALL_CDECL);
@@ -338,10 +362,11 @@ void RegisterGraphics(asIScriptEngine* engine)
 	/*
 	engine->RegisterGlobalFunction("void drawLayer()", asFUNCTION(module_drawLayer), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void drawInstanced()", asFUNCTION(module_drawInstanced), asCALL_CDECL);
+	*/
 
-	engine->RegisterGlobalFunction("void print()", asFUNCTION(module_print), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void printf()", asFUNCTION(module_printf), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void print(const string &in s, const vec2 &in pos = vec2(), float r = 0.0f, const vec2 &in scale = vec2(1.0f, 1.0f), const vec2 &in origin = vec2(), const vec2 &in shear = vec2())", asFUNCTION(module_print), asCALL_CDECL);
 
+	/*
 	engine->RegisterGlobalFunction("void isCreated()", asFUNCTION(module_isCreated), asCALL_CDECL);
 	*/
 	engine->RegisterGlobalFunction("bool isActive()", asFUNCTION(module_isActive), asCALL_CDECL);
@@ -366,7 +391,9 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void getStencilTest()", asFUNCTION(module_getStencilTest), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("void points()", asFUNCTION(module_points), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void line()", asFUNCTION(module_line), asCALL_CDECL);
+	*/
+	engine->RegisterGlobalFunction("void line(array<vec2>@ vertices)", asFUNCTION(module_line), asCALL_CDECL);
+	/*
 	engine->RegisterGlobalFunction("void rectangle()", asFUNCTION(module_rectangle), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void circle()", asFUNCTION(module_circle), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void ellipse()", asFUNCTION(module_ellipse), asCALL_CDECL);

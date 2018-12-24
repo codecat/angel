@@ -59,8 +59,8 @@ static love::physics::box2d::PolygonShape* module_newPolygonShape(CScriptArray* 
 
 	for (asUINT i = 0; i < pointCount; i++) {
 		auto &v = *(glm::vec2*)vertices->At(i);
-		points[i].x = v.x;
-		points[i].y = v.y;
+		points[i].x = love::physics::box2d::Physics::scaleDown(v.x);
+		points[i].y = love::physics::box2d::Physics::scaleDown(v.y);
 	}
 
 	s->Set(points, pointCount);
@@ -166,8 +166,6 @@ public:
 
 static float module_getDistance(WrappedFixture* a, WrappedFixture* b)
 {
-	auto pPhysics = instance();
-
 	b2DistanceProxy pA, pB;
 	b2DistanceInput i;
 	b2DistanceOutput o;
@@ -183,7 +181,7 @@ static float module_getDistance(WrappedFixture* a, WrappedFixture* b)
 	i.useRadii = true;
 	b2Distance(&o, &c, &i);
 
-	return pPhysics->scaleUp(o.distance);
+	return love::physics::box2d::Physics::scaleUp(o.distance);
 }
 
 static float module_getMeter() { return instance()->getMeter(); }
@@ -269,7 +267,7 @@ void RegisterPhysics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("World@+ newWorld(float gx, float gy, bool sleep = true)", asFUNCTION(module_newWorld), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Body@+ newBody(World@+ world, float x, float y, BodyType type)", asFUNCTION(module_newBody), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Body@+ newBody(World@+ world, BodyType type)", asFUNCTION(module_newBody2), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Fixture@+ newFixture(Body@+ body, Shape@+ shape, float density)", asFUNCTION(module_newFixture), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Fixture@+ newFixture(Body@+ body, Shape@+ shape, float density = 1.0f)", asFUNCTION(module_newFixture), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("CircleShape@+ newCircleShape(float radius)", asFUNCTION(module_newCircleShape), asCALL_CDECL);
 	engine->RegisterGlobalFunction("CircleShape@+ newCircleShape(float x, float y, float radius)", asFUNCTION(module_newCircleShape2), asCALL_CDECL);
