@@ -1,3 +1,3 @@
 [submodule "angelscript"]
 	path = angelscript
-	url = git@github.com:codecat/angelscript-mirror.git
+	url = https://github.com/codecat/angelscript-mirror.git
