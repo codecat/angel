@@ -4,7 +4,9 @@ project(Angel)
 
 set(AS_NO_EXCEPTIONS ON)
 
-add_subdirectory(../love out)
+set(CMAKE_CXX_STANDARD 11)
+
+add_subdirectory(love2d out)
 add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
 
 add_executable(angel
@@ -95,13 +97,9 @@ include_directories(
 	src/
 
 	# Love
-	../love/src/
-	../love/src/modules/
-	../love/src/libraries/
-
-	# Temporary absolute paths
-	/usr/include/SDL2/
-	/usr/include/luajit-2.1/
+	love2d/src/
+	love2d/src/modules/
+	love2d/src/libraries/
 
 	# Angelscript
 	angelscript/sdk/angelscript/include/
@@ -109,3 +107,19 @@ include_directories(
 )
 
 target_link_libraries(angel liblove angelscript)
+
+if (APPLE)
+	#TODO: Temporary absolute paths
+	include_directories(
+		/usr/local/Cellar/lua/5.3.5_1/include/lua/
+		/usr/local/Cellar/glm/0.9.9.3/include/
+		/usr/local/Cellar/sdl2/2.0.5/include/SDL2/
+	)
+	#target_link_libraries(angel "-framework CoreFoundation")
+else()
+	#TODO: Temporary absolute path
+	include_directories(
+		/usr/include/luajit-2.1/
+		/usr/include/SDL2/
+	)
+endif()
