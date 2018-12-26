@@ -32,6 +32,7 @@ static love::graphics::Image* module_newImage(love::Data* data)
 
 	love::image::ImageData* imgData = new love::image::ImageData(data);
 	slices.set(0, 0, imgData);
+	imgData->release();
 
 	return instance()->newImage(slices, settings);
 }
@@ -279,7 +280,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 	//engine->RegisterGlobalFunction("void discard()", asFUNCTION(module_discard), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void present()", asFUNCTION(module_present), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("Image@ newImage(Data@ data)", asFUNCTION(module_newImage), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Image@ newImage(Data@+ data)", asFUNCTION(module_newImage), asCALL_CDECL);
 	/*
 	engine->RegisterGlobalFunction("void newArrayImage()", asFUNCTION(module_newArrayImage), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void newVolumeImage()", asFUNCTION(module_newVolumeImage), asCALL_CDECL);
@@ -357,7 +358,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void captureScreenshot()", asFUNCTION(module_captureScreenshot), asCALL_CDECL);
 	*/
 
-	engine->RegisterGlobalFunction("void draw(Drawable@ drawable, const vec2 &in pos = vec2(), float r = 0.0f, const vec2 &in scale = vec2(1.0f, 1.0f), const vec2 &in origin = vec2(), const vec2 &in shear = vec2())", asFUNCTION(module_draw), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void draw(Drawable@+ drawable, const vec2 &in pos = vec2(), float r = 0.0f, const vec2 &in scale = vec2(1.0f, 1.0f), const vec2 &in origin = vec2(), const vec2 &in shear = vec2())", asFUNCTION(module_draw), asCALL_CDECL);
 
 	/*
 	engine->RegisterGlobalFunction("void drawLayer()", asFUNCTION(module_drawLayer), asCALL_CDECL);

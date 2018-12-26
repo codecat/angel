@@ -20,20 +20,26 @@ static love::Data* module_decompress(love::data::CompressedData* data)
 {
 	size_t rawsize;
 	char* rawbytes = love::data::decompress(data, rawsize);
-	return new love::data::ByteData(rawbytes, rawsize);
+	auto ret = new love::data::ByteData(rawbytes, rawsize);
+	delete[] rawbytes;
+	return ret;
 }
 
 static love::Data* module_encode(love::data::EncodeFormat format, love::Data* src, uint64_t linelen)
 {
 	size_t rawsize;
 	char* rawbytes = love::data::encode(format, (const char*)src->getData(), src->getSize(), rawsize, linelen);
-	return new love::data::ByteData(rawbytes, rawsize);
+	auto ret = new love::data::ByteData(rawbytes, rawsize);
+	delete[] rawbytes;
+	return ret;
 }
 static love::Data* module_decode(love::data::EncodeFormat format, love::Data* src)
 {
 	size_t rawsize;
 	char* rawbytes = love::data::decode(format, (const char*)src->getData(), src->getSize(), rawsize);
-	return new love::data::ByteData(rawbytes, rawsize);
+	auto ret = new love::data::ByteData(rawbytes, rawsize);
+	delete[] rawbytes;
+	return ret;
 }
 
 static std::string module_hash(love::data::HashFunction::Function function, love::Data* input)
@@ -80,16 +86,16 @@ void RegisterData(asIScriptEngine* engine)
 	auto regCompressedData = ClassRegister::New(engine, "CompressedData", 0, asOBJ_REF, "Data");
 
 	// Module
-	engine->RegisterGlobalFunction("Data@ newDataView(Data@ data, uint64 offset, uint64 size)", asFUNCTION(module_newDataView), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Data@ newDataView(Data@+ data, uint64 offset, uint64 size)", asFUNCTION(module_newDataView), asCALL_CDECL);
 	engine->RegisterGlobalFunction("Data@ newByteData(uint64 size)", asFUNCTION(module_newByteData), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("CompressedData@ compress(CompressorFormat format, Data@ data, int level = -1)", asFUNCTION(module_compress), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Data@ decompress(CompressedData@ data)", asFUNCTION(module_decompress), asCALL_CDECL);
+	engine->RegisterGlobalFunction("CompressedData@ compress(CompressorFormat format, Data@+ data, int level = -1)", asFUNCTION(module_compress), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Data@ decompress(CompressedData@+ data)", asFUNCTION(module_decompress), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("Data@ encode(EncodeFormat format, Data@ src, uint64 linelen = 0)", asFUNCTION(module_encode), asCALL_CDECL);
-	engine->RegisterGlobalFunction("Data@ decode(EncodeFormat format, Data@ src)", asFUNCTION(module_decode), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Data@ encode(EncodeFormat format, Data@+ src, uint64 linelen = 0)", asFUNCTION(module_encode), asCALL_CDECL);
+	engine->RegisterGlobalFunction("Data@ decode(EncodeFormat format, Data@+ src)", asFUNCTION(module_decode), asCALL_CDECL);
 
-	engine->RegisterGlobalFunction("string hash(HashFunction function, Data@ input)", asFUNCTION(module_hash), asCALL_CDECL);
+	engine->RegisterGlobalFunction("string hash(HashFunction function, Data@+ input)", asFUNCTION(module_hash), asCALL_CDECL);
 
 	//engine->RegisterGlobalFunction("void pack()", asFUNCTION(module_pack), asCALL_CDECL);
 	//engine->RegisterGlobalFunction("void unpack()", asFUNCTION(module_unpack), asCALL_CDECL);

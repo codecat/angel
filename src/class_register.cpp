@@ -102,7 +102,7 @@ void CClassRegister::RegisterChild(CClassRegister* child)
 		m_engine->RegisterObjectBehaviour(child->m_name.c_str(), behavior.m_behavior, behavior.m_declaration.c_str(), behavior.m_funcPointer, behavior.m_callConv, behavior.m_auxiliary, behavior.m_compositeOffset, behavior.m_isCompositeIndirect);
 	}
 
-	std::string declUpcast = m_name + "@ opImplCast()";
+	std::string declUpcast = m_name + "@+ opImplCast()";
 	m_engine->RegisterObjectMethod(child->m_name.c_str(), declUpcast.c_str(), asFUNCTION(ScriptUpcast), asCALL_CDECL_OBJFIRST);
 
 	//TODO: Explicit downcast
