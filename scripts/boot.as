@@ -121,6 +121,8 @@ void angel_run()
 				return;
 			}
 
+			angel::game_event(msg);
+
 			@msg = angel::event::poll();
 		}
 

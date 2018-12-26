@@ -15,9 +15,33 @@ CScriptCall::CScriptCall(asIScriptContext* ctx, asIScriptFunction* func)
 	}
 }
 
-void CScriptCall::SetArg(int index, int num) { if (m_func == nullptr) { return; } m_ctx->SetArgDWord(index, num); }
-void CScriptCall::SetArg(int index, double num) { if (m_func == nullptr) { return; } m_ctx->SetArgDouble(index, num); }
-void CScriptCall::SetArg(int index, void* obj) { if (m_func == nullptr) { return; } m_ctx->SetArgObject(index, obj); }
+void CScriptCall::SetArg(int index, int num)
+{
+	if (m_func == nullptr) { return; }
+	if (index >= (int)m_func->GetParamCount()) { return; }
+	m_ctx->SetArgDWord(index, num);
+}
+
+void CScriptCall::SetArg(int index, double num)
+{
+	if (m_func == nullptr) { return; }
+	if (index >= (int)m_func->GetParamCount()) { return; }
+	m_ctx->SetArgDouble(index, num);
+}
+
+void CScriptCall::SetArg(int index, bool b)
+{
+	if (m_func == nullptr) { return; }
+	if (index >= (int)m_func->GetParamCount()) { return; }
+	m_ctx->SetArgByte(index, b ? 1 : 0);
+}
+
+void CScriptCall::SetArg(int index, void* obj)
+{
+	if (m_func == nullptr) { return; }
+	if (index >= (int)m_func->GetParamCount()) { return; }
+	m_ctx->SetArgObject(index, obj);
+}
 
 bool CScriptCall::Execute()
 {

@@ -13,6 +13,7 @@ public:
 
 	void SetArg(int index, int num);
 	void SetArg(int index, double num);
+	void SetArg(int index, bool b);
 	void SetArg(int index, void* obj);
 
 	bool Execute();

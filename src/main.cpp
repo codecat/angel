@@ -33,6 +33,8 @@
 #include <angel_modules/image.h>
 #include <angel_modules/physics.h>
 
+#include <event_handlers.h>
+
 #include <modules/filesystem/Filesystem.h>
 
 #include <script_call.h>
@@ -99,7 +101,8 @@ static void loadscripts(CScriptBuilder &builder, const std::string &path, love::
 	}
 }
 
-static asIScriptContext* g_ctx = nullptr;
+asIScriptContext* g_ctx = nullptr; //TODO: MOVE THIS SOMEWHERE ELSE
+
 static asIScriptFunction* g_funcGameLoad = nullptr;
 static asIScriptFunction* g_funcGameUpdate = nullptr;
 static asIScriptFunction* g_funcGameDraw = nullptr;
@@ -140,27 +143,11 @@ static DoneAction runangel()
 
 	g_ctx = engine->CreateContext();
 
-	int r = 0;
-
+	// Base bindings
 	RegisterScriptArray(engine, true);
 	RegisterStdString(engine);
 	RegisterStdStringUtils(engine);
 	RegisterScriptDictionary(engine);
-
-	engine->RegisterObjectMethod("string", "string replace(const string &in search, const string &in replace) const", asFUNCTION(ScriptStringReplace), asCALL_CDECL_OBJFIRST);
-
-	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
-
-	engine->SetDefaultNamespace("angel");
-
-	engine->RegisterGlobalFunction("string getVersion()", asFUNCTION(ScriptGetVersion), asCALL_CDECL);
-	engine->RegisterGlobalFunction("string getVersionCodename()", asFUNCTION(ScriptGetVersionCodename), asCALL_CDECL);
-
-	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
-
-	engine->SetDefaultNamespace("");
 
 	// Common bindings
 	RegisterObject(engine);
@@ -183,6 +170,24 @@ static DoneAction runangel()
 	RegisterData(engine);
 	RegisterImage(engine);
 	RegisterPhysics(engine);
+
+	engine->RegisterObjectMethod("string", "string replace(const string &in search, const string &in replace) const", asFUNCTION(ScriptStringReplace), asCALL_CDECL_OBJFIRST);
+
+	engine->RegisterGlobalFunction("void print(const string &in str)", asFUNCTION(ScriptPrint), asCALL_CDECL);
+
+	engine->SetDefaultNamespace("angel");
+
+	engine->RegisterGlobalFunction("string getVersion()", asFUNCTION(ScriptGetVersion), asCALL_CDECL);
+	engine->RegisterGlobalFunction("string getVersionCodename()", asFUNCTION(ScriptGetVersionCodename), asCALL_CDECL);
+
+	engine->RegisterGlobalFunction("void game_load()", asFUNCTION(ScriptGameLoad), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void game_update(double dt)", asFUNCTION(ScriptGameUpdate), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void game_draw()", asFUNCTION(ScriptGameDraw), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void game_event(angel::event::Message@ msg)", asFUNCTION(EventHandlers::ScriptGameEvent), asCALL_CDECL);
+
+	engine->SetDefaultNamespace("");
+
+	int r = 0;
 
 	CScriptBuilder builder;
 	builder.StartNewModule(engine, "Boot");
@@ -221,10 +226,15 @@ static DoneAction runangel()
 	g_funcGameUpdate = modGame->GetFunctionByDecl("void angel_update(double dt)");
 	g_funcGameDraw = modGame->GetFunctionByDecl("void angel_draw()");
 
+	EventHandlers::FindGameEvents(modGame);
+
 	asIScriptFunction* funcRun = modBoot->GetFunctionByDecl("void angel_run()");
 	CScriptCall(g_ctx, funcRun).Execute();
 
 	ClassRegister::Clear();
+
+	g_ctx->Release();
+	engine->Release();
 
 	return done;
 }

@@ -18,6 +18,12 @@ add_executable(angel
 	src/class_register.cpp
 	src/class_register.h
 
+	src/variant_helpers.cpp
+	src/variant_helpers.h
+
+	src/event_handlers.cpp
+	src/event_handlers.h
+
 	# Common
 	src/angel_common/object.cpp
 	src/angel_common/object.h

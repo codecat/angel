@@ -437,3 +437,15 @@ void angel_draw()
 		g_entities[i].draw();
 	}
 }
+
+void angel_keypressed(string key, string scancode, bool isrepeat)
+{
+	if (key == "escape") {
+		angel::event::quit();
+	}
+}
+
+void angel_resize()
+{
+	create_world();
+}
