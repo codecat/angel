@@ -115,7 +115,12 @@ if (APPLE)
 		/usr/local/Cellar/glm/0.9.9.3/include/
 		/usr/local/Cellar/sdl2/2.0.5/include/SDL2/
 	)
-	#target_link_libraries(angel "-framework CoreFoundation")
+
+	# Small fix for Love's physfs target on MacOS
+	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
+	target_link_libraries(love_3p_physfs "-framework IOKit")
+	target_link_libraries(love_3p_physfs "-framework CoreServices")
+	target_link_libraries(love_3p_physfs "-framework AppKit")
 else()
 	#TODO: Temporary absolute path
 	include_directories(

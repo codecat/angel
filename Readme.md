@@ -20,6 +20,17 @@ Eventually I plan to get everything from LÖVE 11.2 to bind to AngelScript, so t
 - [ ] Complete 11.2 API coverage
 - [ ] Automated testing
 
+## Building
+Currently, Angel only builds on Linux and MacOS. Builds are done with CMake. After cloning, do something like this:
+
+```
+$ git submodule update --init --recursive
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+```
+
 ## Screenshot
 This screenshot shows the "no game" screen ported to AngelScript. The source for this can be found in [the game directory](/game).
 
