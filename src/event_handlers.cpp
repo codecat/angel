@@ -18,41 +18,48 @@ static asIScriptFunction* findFunction(asIScriptModule* mod, const std::vector<s
 	return nullptr;
 }
 
-static asIScriptFunction* g_funcGameKeyPressed = nullptr;
-static asIScriptFunction* g_funcGameKeyReleased = nullptr;
+static asIScriptFunction* g_funcKeyPressed = nullptr;
+static asIScriptFunction* g_funcKeyReleased = nullptr;
 
-static asIScriptFunction* g_funcGameMouseMoved = nullptr;
-static asIScriptFunction* g_funcGameMousePressed = nullptr;
-static asIScriptFunction* g_funcGameMouseReleased = nullptr;
+static asIScriptFunction* g_funcMouseMoved = nullptr;
+static asIScriptFunction* g_funcMousePressed = nullptr;
+static asIScriptFunction* g_funcMouseReleased = nullptr;
+
+static asIScriptFunction* g_funcResize = nullptr;
 
 void EventHandlers::FindGameEvents(asIScriptModule* mod)
 {
-	g_funcGameKeyPressed = findFunction(mod, {
+	g_funcKeyPressed = findFunction(mod, {
 		"void angel_keypressed(string key)",
 		"void angel_keypressed(string key, string scancode)",
 		"void angel_keypressed(string key, string scancode, bool isrepeat)",
 	});
-	g_funcGameKeyReleased = findFunction(mod, {
+	g_funcKeyReleased = findFunction(mod, {
 		"void angel_keyreleased(string key)",
 		"void angel_keyreleased(string key, string scancode)",
 	});
 
-	g_funcGameMouseMoved = findFunction(mod, {
+	g_funcMouseMoved = findFunction(mod, {
 		"void angel_mousemoved(int x, int y)",
 		"void angel_mousemoved(int x, int y, int dx, int dy)",
 		"void angel_mousemoved(int x, int y, int dx, int dy, bool istouch)",
 	});
-	g_funcGameMousePressed = findFunction(mod, {
+	g_funcMousePressed = findFunction(mod, {
 		"void angel_mousepressed(int x, int y)",
 		"void angel_mousepressed(int x, int y, int button)",
 		"void angel_mousepressed(int x, int y, int button, bool istouch)",
 		"void angel_mousepressed(int x, int y, int button, bool istouch, int presses)",
 	});
-	g_funcGameMouseReleased = findFunction(mod, {
+	g_funcMouseReleased = findFunction(mod, {
 		"void angel_mousereleased(int x, int y)",
 		"void angel_mousereleased(int x, int y, int button)",
 		"void angel_mousereleased(int x, int y, int button, bool istouch)",
 		"void angel_mousereleased(int x, int y, int button, bool istouch, int presses)",
+	});
+
+	g_funcResize = findFunction(mod, {
+		"void angel_resize()",
+		"void angel_resize(int w, int h)",
 	});
 }
 
@@ -63,7 +70,7 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		std::string scancode = getVariantString(msg->args[1]);
 		bool isrepeat = getVariantBool(msg->args[2]);
 
-		CScriptCall call(g_ctx, g_funcGameKeyPressed);
+		CScriptCall call(g_ctx, g_funcKeyPressed);
 		call.SetArg(0, &key);
 		call.SetArg(1, &scancode);
 		call.SetArg(2, isrepeat);
@@ -73,7 +80,7 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		std::string key = getVariantString(msg->args[0]);
 		std::string scancode = getVariantString(msg->args[1]);
 
-		CScriptCall call(g_ctx, g_funcGameKeyReleased);
+		CScriptCall call(g_ctx, g_funcKeyReleased);
 		call.SetArg(0, &key);
 		call.SetArg(1, &scancode);
 		call.Execute();
@@ -88,7 +95,7 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		int dy = getVariantNumber<int>(msg->args[3]);
 		bool istouch = getVariantBool(msg->args[4]);
 
-		CScriptCall call(g_ctx, g_funcGameMouseMoved);
+		CScriptCall call(g_ctx, g_funcMouseMoved);
 		call.SetArg(0, x);
 		call.SetArg(1, y);
 		call.SetArg(2, dx);
@@ -103,7 +110,7 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		bool istouch = getVariantBool(msg->args[3]);
 		int presses = getVariantNumber<int>(msg->args[4]);
 
-		CScriptCall call(g_ctx, g_funcGameMousePressed);
+		CScriptCall call(g_ctx, g_funcMousePressed);
 		call.SetArg(0, x);
 		call.SetArg(1, y);
 		call.SetArg(2, button);
@@ -118,7 +125,7 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		bool istouch = getVariantBool(msg->args[3]);
 		int presses = getVariantNumber<int>(msg->args[4]);
 
-		CScriptCall call(g_ctx, g_funcGameMouseReleased);
+		CScriptCall call(g_ctx, g_funcMouseReleased);
 		call.SetArg(0, x);
 		call.SetArg(1, y);
 		call.SetArg(2, button);
@@ -143,7 +150,16 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		//TODO: mousefocus
 		//TODO: visible
 		//TODO: threaderror
-		//TODO: resize
+
+	} else if (msg->name == "resize") {
+		int w = getVariantNumber<int>(msg->args[0]);
+		int h = getVariantNumber<int>(msg->args[1]);
+
+		CScriptCall call(g_ctx, g_funcResize);
+		call.SetArg(0, w);
+		call.SetArg(0, h);
+		call.Execute();
+
 		//TODO: filedropped
 		//TODO: directorydropped
 		//TODO: lowmemory

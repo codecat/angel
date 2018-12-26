@@ -64,7 +64,10 @@ class State
 		t = min(t, t1);
 		t = max(t, t0);
 
-		float p = (t - t0) / (t1 - t0);
+		float p = 0.0f;
+		if (t1 != t0) {
+			p = (t - t0) / (t1 - t0);
+		}
 
 		StatePos ret;
 		ret.x = x0 + p * (x1 - x0);
@@ -374,12 +377,17 @@ void create_world()
 	@g_chain = Chain(g_world, attach.x, attach.y, g_duckloon);
 	@g_clouds = Clouds();
 
+	g_entities.removeRange(0, g_entities.length());
 	g_entities.insertLast(g_chain);
 	g_entities.insertLast(g_duckloon);
 }
 
 void angel_load()
 {
+	int width, height;
+	auto settings = angel::window::getMode(width, height);
+	settings.resizable = true;
+	angel::window::setMode(width, height, settings);
 	angel::window::setTitle("Angel " + angel::getVersion() + " (" + angel::getVersionCodename() + ")");
 
 	R::loadContent();

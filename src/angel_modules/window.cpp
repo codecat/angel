@@ -10,7 +10,12 @@
 static int module_getDisplayCount() { return instance()->getDisplayCount(); }
 static std::string module_getDisplayName(int displayindex) { return instance()->getDisplayName(displayindex); }
 static bool module_setMode(int width, int height, love::window::WindowSettings &settings) { return instance()->setWindow(width, height, &settings); }
-static void module_getMode(int &width, int &height, love::window::WindowSettings &settings) { instance()->getWindow(width, height, settings); }
+static love::window::WindowSettings module_getMode(int &width, int &height)
+{
+	love::window::WindowSettings ret;
+	instance()->getWindow(width, height, ret);
+	return ret;
+}
 static love::window::Window::DisplayOrientation module_getDisplayOrientation(int displayindex) { return instance()->getDisplayOrientation(displayindex); }
 //static void module_getFullscreenModes() { }
 static bool module_setFullscreen(bool fullscreen, love::window::Window::FullscreenType fstype) { return instance()->setFullscreen(fullscreen, fstype); }
@@ -110,7 +115,7 @@ void RegisterWindow(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("int getDisplayCount()", asFUNCTION(module_getDisplayCount), asCALL_CDECL);
 	engine->RegisterGlobalFunction("string getDisplayName(int displayindex)", asFUNCTION(module_getDisplayName), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool setMode(int width, int height, WindowSettings &in settings)", asFUNCTION(module_setMode), asCALL_CDECL);
-	engine->RegisterGlobalFunction("void getMode(int &out width, int &out height, WindowSettings &out settings)", asFUNCTION(module_getMode), asCALL_CDECL);
+	engine->RegisterGlobalFunction("WindowSettings getMode(int &out width, int &out height)", asFUNCTION(module_getMode), asCALL_CDECL);
 	engine->RegisterGlobalFunction("DisplayOrientation getDisplayOrientation(int displayindex)", asFUNCTION(module_getDisplayOrientation), asCALL_CDECL);
 	//engine->RegisterGlobalFunction("void getFullscreenModes()", asFUNCTION(module_getFullscreenModes), asCALL_CDECL);
 	engine->RegisterGlobalFunction("bool setFullscreen(bool fullscreen, FullscreenType = angel::window::FullscreenType::Desktop)", asFUNCTION(module_setFullscreen), asCALL_CDECL);
