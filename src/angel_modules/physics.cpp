@@ -274,9 +274,9 @@ void RegisterPhysics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float w, float h)", asFUNCTION(module_newRectangleShape), asCALL_CDECL);
 	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float x, float y, float w, float h)", asFUNCTION(module_newRectangleShape2), asCALL_CDECL);
 	engine->RegisterGlobalFunction("PolygonShape@+ newRectangleShape(float x, float y, float w, float h, float angle)", asFUNCTION(module_newRectangleShape3), asCALL_CDECL);
-	engine->RegisterGlobalFunction("PolygonShape@+ newPolygonShape(const array<vec2>@ vertices)", asFUNCTION(module_newPolygonShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("PolygonShape@+ newPolygonShape(const array<vec2>@+ vertices)", asFUNCTION(module_newPolygonShape), asCALL_CDECL);
 	engine->RegisterGlobalFunction("EdgeShape@+ newEdgeShape(float x1, float y1, float x2, float y2)", asFUNCTION(module_newEdgeShape), asCALL_CDECL);
-	engine->RegisterGlobalFunction("ChainShape@+ newChainShape(bool looping, array<vec2>@ vertices)", asFUNCTION(module_newChainShape), asCALL_CDECL);
+	engine->RegisterGlobalFunction("ChainShape@+ newChainShape(bool looping, array<vec2>@+ vertices)", asFUNCTION(module_newChainShape), asCALL_CDECL);
 
 	engine->RegisterGlobalFunction("DistanceJoint@+ newDistanceJoint(Body@+ body1, Body@+ body2, float x1, float y1, float x2, float y2, bool collideConnected = false)", asFUNCTION(module_newDistanceJoint), asCALL_CDECL);
 	engine->RegisterGlobalFunction("MouseJoint@+ newMouseJoint(Body@+ body, float x, float y)", asFUNCTION(module_newMouseJoint), asCALL_CDECL);

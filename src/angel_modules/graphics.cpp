@@ -142,8 +142,11 @@ static void module__setDefaultShaderCode(CScriptDictionary* defaults, CScriptDic
 				!dictLang->Get("arraypixel", &arraypixel, typeIdString)
 				) {
 				ctx->SetException("Missing a shader code entry or it's not the right type!");
+				dictLang->Release();
 				return;
 			}
+
+			dictLang->Release();
 
 			defaultShaderCode[love::graphics::Shader::STANDARD_DEFAULT][lang][i].source[love::graphics::ShaderStage::STAGE_VERTEX] = vertex;
 			defaultShaderCode[love::graphics::Shader::STANDARD_DEFAULT][lang][i].source[love::graphics::ShaderStage::STAGE_PIXEL] = pixel;
@@ -340,7 +343,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 	engine->RegisterGlobalFunction("void setShader()", asFUNCTION(module_setShader), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void getShader()", asFUNCTION(module_getShader), asCALL_CDECL);
 	*/
-	engine->RegisterGlobalFunction("void _setDefaultShaderCode(dictionary@ defaults, dictionary@ defaults_gammacorrect)", asFUNCTION(module__setDefaultShaderCode), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void _setDefaultShaderCode(dictionary@+ defaults, dictionary@+ defaults_gammacorrect)", asFUNCTION(module__setDefaultShaderCode), asCALL_CDECL);
 
 	/*
 	engine->RegisterGlobalFunction("void getSupported()", asFUNCTION(module_getSupported), asCALL_CDECL);
@@ -386,7 +389,7 @@ void RegisterGraphics(asIScriptEngine* engine)
 
 	engine->RegisterGlobalFunction("void points()", asFUNCTION(module_points), asCALL_CDECL);
 	*/
-	engine->RegisterGlobalFunction("void line(array<vec2>@ vertices)", asFUNCTION(module_line), asCALL_CDECL);
+	engine->RegisterGlobalFunction("void line(array<vec2>@+ vertices)", asFUNCTION(module_line), asCALL_CDECL);
 	/*
 	engine->RegisterGlobalFunction("void rectangle()", asFUNCTION(module_rectangle), asCALL_CDECL);
 	engine->RegisterGlobalFunction("void circle()", asFUNCTION(module_circle), asCALL_CDECL);
