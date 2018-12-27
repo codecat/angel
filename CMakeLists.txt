@@ -6,6 +6,12 @@ set(AS_NO_EXCEPTIONS ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${project_SOURCE_DIR}/cmake" "${project_SOURCE_DIR}/love2d/extra/cmake")
+
+if(POLICY CMP0079)
+    cmake_policy(SET CMP0079 NEW)
+endif()
+
 add_subdirectory(love2d out)
 add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
 
@@ -98,6 +104,25 @@ add_executable(angel
 	angelscript/sdk/add_on/scriptstdstring/scriptstdstring_utils.cpp
 )
 
+find_package(SDL2 REQUIRED)
+
+if (APPLE)
+	find_package(Lua51 REQUIRED)
+	find_package(GLM REQUIRED)
+	
+	include_directories(
+		${GLM_INCLUDE_DIR}
+	)
+
+	# Small fix for Love's physfs target on MacOS
+	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
+	target_link_libraries(love_3p_physfs "-framework IOKit")
+	target_link_libraries(love_3p_physfs "-framework CoreServices")
+	target_link_libraries(love_3p_physfs "-framework AppKit")
+else()
+	find_package(LuaJIT REQUIRED)
+endif()
+
 include_directories(
 	# Our code
 	src/
@@ -110,27 +135,12 @@ include_directories(
 	# Angelscript
 	angelscript/sdk/angelscript/include/
 	angelscript/sdk/add_on/
+
+	# SDL2
+	${SDL2_INCLUDE_DIR}
+
+	# Lua
+	${LUA_INCLUDE_DIR}
 )
 
 target_link_libraries(angel liblove angelscript)
-
-if (APPLE)
-	#TODO: Temporary absolute paths
-	include_directories(
-		/usr/local/Cellar/lua/5.3.5_1/include/lua/
-		/usr/local/Cellar/glm/0.9.9.3/include/
-		/usr/local/Cellar/sdl2/2.0.5/include/SDL2/
-	)
-
-	# Small fix for Love's physfs target on MacOS
-	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
-	target_link_libraries(love_3p_physfs "-framework IOKit")
-	target_link_libraries(love_3p_physfs "-framework CoreServices")
-	target_link_libraries(love_3p_physfs "-framework AppKit")
-else()
-	#TODO: Temporary absolute path
-	include_directories(
-		/usr/include/luajit-2.1/
-		/usr/include/SDL2/
-	)
-endif()
