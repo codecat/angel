@@ -6,7 +6,7 @@ set(AS_NO_EXCEPTIONS ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${project_SOURCE_DIR}/cmake" "${project_SOURCE_DIR}/love2d/extra/cmake")
+set(CMAKE_MODULE_PATH "${Angel_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 if(POLICY CMP0079)
     cmake_policy(SET CMP0079 NEW)
@@ -109,7 +109,10 @@ find_package(SDL2 REQUIRED)
 if (APPLE)
 	find_package(Lua51 REQUIRED)
 	find_package(GLM REQUIRED)
-	
+
+	message("GLM: ${GLM_INCLUDE_DIR}")
+	message("SDL2: ${SDL2_INCLUDE_DIR}")
+	message("Lua: ${LUA_INCLUDE_DIR}")
 	include_directories(
 		${GLM_INCLUDE_DIR}
 	)
