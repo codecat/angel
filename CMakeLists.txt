@@ -105,14 +105,12 @@ add_executable(angel
 )
 
 find_package(SDL2 REQUIRED)
+message("Found SDL2 path: ${SDL2_INCLUDE_DIR}")
 
 if (APPLE)
 	find_package(Lua51 REQUIRED)
 	find_package(GLM REQUIRED)
 
-	message("GLM: ${GLM_INCLUDE_DIR}")
-	message("SDL2: ${SDL2_INCLUDE_DIR}")
-	message("Lua: ${LUA_INCLUDE_DIR}")
 	include_directories(
 		${GLM_INCLUDE_DIR}
 	)
@@ -125,6 +123,7 @@ if (APPLE)
 else()
 	find_package(LuaJIT REQUIRED)
 endif()
+message("Found Lua path: ${LUA_INCLUDE_DIR}")
 
 include_directories(
 	# Our code
