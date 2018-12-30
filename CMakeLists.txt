@@ -6,6 +6,12 @@ set(AS_NO_EXCEPTIONS ON)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_MODULE_PATH "${Angel_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+if(POLICY CMP0079)
+    cmake_policy(SET CMP0079 NEW)
+endif()
+
 add_subdirectory(love2d out)
 add_subdirectory(angelscript/sdk/angelscript/projects/cmake)
 
@@ -131,8 +137,12 @@ endif()
 target_link_libraries(angel liblove angelscript)
 
 if (APPLE)
-	#TODO: Temporary absolute path for GLM
-	include_directories(/usr/local/Cellar/glm/0.9.9.3/include/)
+	find_package(GLM REQUIRED)
+
+	MESSAGE(STATUS "GLM_INCLUDE_DIR = ${GLM_INCLUDE_DIR}")
+	include_directories(
+		${GLM_INCLUDE_DIR}
+	)
 
 	# Small fix for Love's physfs target on MacOS
 	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
