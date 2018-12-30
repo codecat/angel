@@ -125,7 +125,7 @@ include_directories(
 
 	# Love dependencies
 	${SDL2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR_ft2build}
+	${FREETYPE_INCLUDE_DIR_freetype2}
 )
 
 if (LOVE_JIT)
