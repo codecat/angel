@@ -23,6 +23,7 @@
 #include <angel_common/graphics/drawable.h>
 #include <angel_common/graphics/texture.h>
 #include <angel_common/graphics/image.h>
+#include <angel_common/font/rasterizer.h>
 
 #include <angel_modules/filesystem.h>
 #include <angel_modules/event.h>
@@ -32,6 +33,7 @@
 #include <angel_modules/data.h>
 #include <angel_modules/image.h>
 #include <angel_modules/physics.h>
+#include <angel_modules/font.h>
 
 #include <event_handlers.h>
 
@@ -160,6 +162,7 @@ static DoneAction runangel()
 	RegisterGraphicsDrawable(engine);
 	RegisterGraphicsTexture(engine);
 	RegisterGraphicsImage(engine);
+	RegisterFontRasterizer(engine);
 
 	// Module bindings
 	RegisterFilesystem(engine, g_argv0);
@@ -170,6 +173,7 @@ static DoneAction runangel()
 	RegisterData(engine);
 	RegisterImage(engine);
 	RegisterPhysics(engine);
+	RegisterFont(engine);
 
 	engine->RegisterObjectMethod("string", "string replace(const string &in search, const string &in replace) const", asFUNCTION(ScriptStringReplace), asCALL_CDECL_OBJFIRST);
 
