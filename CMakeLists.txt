@@ -110,28 +110,6 @@ add_executable(angel
 	angelscript/sdk/add_on/scriptstdstring/scriptstdstring_utils.cpp
 )
 
-find_package(SDL2 REQUIRED)
-MESSAGE(STATUS "SDL2_INCLUDE_DIR = ${SDL2_INCLUDE_DIR}")
-
-if (APPLE)
-	find_package(Lua51 REQUIRED)
-	find_package(GLM REQUIRED)
-
-	MESSAGE(STATUS "GLM_INCLUDE_DIR = ${GLM_INCLUDE_DIR}")
-	include_directories(
-		${GLM_INCLUDE_DIR}
-	)
-
-	# Small fix for Love's physfs target on MacOS
-	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
-	target_link_libraries(love_3p_physfs "-framework IOKit")
-	target_link_libraries(love_3p_physfs "-framework CoreServices")
-	target_link_libraries(love_3p_physfs "-framework AppKit")
-else()
-	find_package(LuaJIT REQUIRED)
-endif()
-MESSAGE(STATUS "LUA_INCLUDE_DIR = ${LUA_INCLUDE_DIR}")
-
 include_directories(
 	# Our code
 	src/
