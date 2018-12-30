@@ -445,7 +445,7 @@ void angel_draw()
 		g_entities[i].draw();
 	}
 
-	angel::graphics::print("Hello, world!");
+	angel::graphics::print("FPS: " + angel::timer::getFPS(), vec2(10, 10));
 }
 
 void angel_keypressed(string key, string scancode, bool isrepeat)

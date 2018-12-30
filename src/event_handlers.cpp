@@ -20,11 +20,17 @@ static asIScriptFunction* findFunction(asIScriptModule* mod, const std::vector<s
 
 static asIScriptFunction* g_funcKeyPressed = nullptr;
 static asIScriptFunction* g_funcKeyReleased = nullptr;
+static asIScriptFunction* g_funcTextInput = nullptr;
+static asIScriptFunction* g_funcTextEdited = nullptr;
 
 static asIScriptFunction* g_funcMouseMoved = nullptr;
 static asIScriptFunction* g_funcMousePressed = nullptr;
 static asIScriptFunction* g_funcMouseReleased = nullptr;
+static asIScriptFunction* g_funcWheelMoved = nullptr;
 
+static asIScriptFunction* g_funcFocus = nullptr;
+static asIScriptFunction* g_funcMouseFocus = nullptr;
+static asIScriptFunction* g_funcVisible = nullptr;
 static asIScriptFunction* g_funcResize = nullptr;
 
 void EventHandlers::FindGameEvents(asIScriptModule* mod)
@@ -37,6 +43,12 @@ void EventHandlers::FindGameEvents(asIScriptModule* mod)
 	g_funcKeyReleased = findFunction(mod, {
 		"void angel_keyreleased(string key)",
 		"void angel_keyreleased(string key, string scancode)",
+	});
+	g_funcTextInput = findFunction(mod, {
+		"void angel_textinput(string text)",
+	});
+	g_funcTextEdited = findFunction(mod, {
+		"void angel_textedited(string text, int start, int length)",
 	});
 
 	g_funcMouseMoved = findFunction(mod, {
@@ -56,7 +68,19 @@ void EventHandlers::FindGameEvents(asIScriptModule* mod)
 		"void angel_mousereleased(int x, int y, int button, bool istouch)",
 		"void angel_mousereleased(int x, int y, int button, bool istouch, int presses)",
 	});
+	g_funcWheelMoved = findFunction(mod, {
+		"void angel_wheelmoved(int x, int y)",
+	});
 
+	g_funcVisible = findFunction(mod, {
+		"void angel_visible(bool visible)",
+	});
+	g_funcFocus = findFunction(mod, {
+		"void angel_focus(bool focus)",
+	});
+	g_funcMouseFocus = findFunction(mod, {
+		"void angel_mousefocus(bool focus)",
+	});
 	g_funcResize = findFunction(mod, {
 		"void angel_resize()",
 		"void angel_resize(int w, int h)",
@@ -85,8 +109,23 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		call.SetArg(1, &scancode);
 		call.Execute();
 
-		//TODO: textinput
-		//TODO: textedited
+	} else if (msg->name == "textinput") {
+		std::string text = getVariantString(msg->args[0]);
+
+		CScriptCall call(g_ctx, g_funcTextInput);
+		call.SetArg(0, &text);
+		call.Execute();
+
+	} else if (msg->name == "textedited") {
+		std::string text = getVariantString(msg->args[0]);
+		int start = getVariantNumber<int>(msg->args[1]);
+		int length = getVariantNumber<int>(msg->args[2]);
+
+		CScriptCall call(g_ctx, g_funcTextEdited);
+		call.SetArg(0, &text);
+		call.SetArg(1, start);
+		call.SetArg(2, length);
+		call.Execute();
 
 	} else if (msg->name == "mousemoved") {
 		int x = getVariantNumber<int>(msg->args[0]);
@@ -133,7 +172,15 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		call.SetArg(4, presses);
 		call.Execute();
 
-		//TODO: wheelmoved
+	} else if (msg->name == "wheelmoved") {
+		int x = getVariantNumber<int>(msg->args[0]);
+		int y = getVariantNumber<int>(msg->args[1]);
+
+		CScriptCall call(g_ctx, g_funcWheelMoved);
+		call.SetArg(0, x);
+		call.SetArg(1, y);
+		call.Execute();
+
 		//TODO: touchpressed
 		//TODO: touchreleased
 		//TODO: touchmoved
@@ -146,9 +193,28 @@ void EventHandlers::ScriptGameEvent(love::event::Message* msg)
 		//TODO: gamepadaxis
 		//TODO: joystickadded
 		//TODO: joystickremoved
-		//TODO: focus
-		//TODO: mousefocus
-		//TODO: visible
+
+	} else if (msg->name == "focus") {
+		bool focus = getVariantBool(msg->args[0]);
+
+		CScriptCall call(g_ctx, g_funcFocus);
+		call.SetArg(0, focus);
+		call.Execute();
+
+	} else if (msg->name == "mousefocus") {
+		bool focus = getVariantBool(msg->args[0]);
+
+		CScriptCall call(g_ctx, g_funcMouseFocus);
+		call.SetArg(0, focus);
+		call.Execute();
+
+	} else if (msg->name == "visible") {
+		bool visible = getVariantBool(msg->args[0]);
+
+		CScriptCall call(g_ctx, g_funcVisible);
+		call.SetArg(0, visible);
+		call.Execute();
+
 		//TODO: threaderror
 
 	} else if (msg->name == "resize") {
