@@ -64,6 +64,9 @@ add_executable(angel
 	src/angel_common/graphics/image.cpp
 	src/angel_common/graphics/image.h
 
+	src/angel_common/font/rasterizer.cpp
+	src/angel_common/font/rasterizer.h
+
 	# Modules
 	src/angel_modules/filesystem.cpp
 	src/angel_modules/filesystem.h
@@ -88,6 +91,9 @@ add_executable(angel
 
 	src/angel_modules/physics.cpp
 	src/angel_modules/physics.h
+
+	src/angel_modules/font.cpp
+	src/angel_modules/font.h
 
 	# Angelscript add-ons
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
@@ -139,11 +145,30 @@ include_directories(
 	angelscript/sdk/angelscript/include/
 	angelscript/sdk/add_on/
 
-	# SDL2
+	# Love dependenc ies
 	${SDL2_INCLUDE_DIR}
-
-	# Lua
-	${LUA_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIR_ft2build}
 )
 
+if (LOVE_JIT)
+	include_directories(${LUAJIT_INCLUDE_DIR})
+else()
+	include_directories(${LUA_INCLUDE_DIR})
+endif()
+
 target_link_libraries(angel liblove angelscript)
+
+if (APPLE)
+	find_package(GLM REQUIRED)
+
+	MESSAGE(STATUS "GLM_INCLUDE_DIR = ${GLM_INCLUDE_DIR}")
+	include_directories(
+		${GLM_INCLUDE_DIR}
+	)
+
+	# Small fix for Love's physfs target on MacOS
+	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
+	target_link_libraries(love_3p_physfs "-framework IOKit")
+	target_link_libraries(love_3p_physfs "-framework CoreServices")
+	target_link_libraries(love_3p_physfs "-framework AppKit")
+endif()

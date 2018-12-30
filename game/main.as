@@ -444,6 +444,8 @@ void angel_draw()
 	for (uint i = 0; i < g_entities.length(); i++) {
 		g_entities[i].draw();
 	}
+
+	angel::graphics::print("Hello, world!");
 }
 
 void angel_keypressed(string key, string scancode, bool isrepeat)
