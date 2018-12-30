@@ -58,6 +58,9 @@ add_executable(angel
 	src/angel_common/graphics/image.cpp
 	src/angel_common/graphics/image.h
 
+	src/angel_common/font/rasterizer.cpp
+	src/angel_common/font/rasterizer.h
+
 	# Modules
 	src/angel_modules/filesystem.cpp
 	src/angel_modules/filesystem.h
@@ -82,6 +85,9 @@ add_executable(angel
 
 	src/angel_modules/physics.cpp
 	src/angel_modules/physics.h
+
+	src/angel_modules/font.cpp
+	src/angel_modules/font.h
 
 	# Angelscript add-ons
 	angelscript/sdk/add_on/scriptarray/scriptarray.cpp
@@ -110,27 +116,27 @@ include_directories(
 	# Angelscript
 	angelscript/sdk/angelscript/include/
 	angelscript/sdk/add_on/
+
+	# Love dependencies
+	${SDL2_INCLUDE_DIR}
+	${FREETYPE_INCLUDE_DIR_ft2build}
 )
+
+if (LOVE_JIT)
+	include_directories(${LUAJIT_INCLUDE_DIR})
+else()
+	include_directories(${LUA_INCLUDE_DIR})
+endif()
 
 target_link_libraries(angel liblove angelscript)
 
 if (APPLE)
-	#TODO: Temporary absolute paths
-	include_directories(
-		/usr/local/Cellar/lua/5.3.5_1/include/lua/
-		/usr/local/Cellar/glm/0.9.9.3/include/
-		/usr/local/Cellar/sdl2/2.0.5/include/SDL2/
-	)
+	#TODO: Temporary absolute path for GLM
+	include_directories(/usr/local/Cellar/glm/0.9.9.3/include/)
 
 	# Small fix for Love's physfs target on MacOS
 	target_link_libraries(love_3p_physfs "-framework CoreFoundation")
 	target_link_libraries(love_3p_physfs "-framework IOKit")
 	target_link_libraries(love_3p_physfs "-framework CoreServices")
 	target_link_libraries(love_3p_physfs "-framework AppKit")
-else()
-	#TODO: Temporary absolute path
-	include_directories(
-		/usr/include/luajit-2.1/
-		/usr/include/SDL2/
-	)
 endif()
