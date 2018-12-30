@@ -145,7 +145,7 @@ include_directories(
 	angelscript/sdk/angelscript/include/
 	angelscript/sdk/add_on/
 
-	# Love dependenc ies
+	# Love dependencies
 	${SDL2_INCLUDE_DIR}
 	${FREETYPE_INCLUDE_DIR_ft2build}
 )
